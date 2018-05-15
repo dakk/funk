@@ -39,7 +39,7 @@ OCAMLPACKAGES	= "str extlib"
 #####################
 
 CC       = gcc
-CFLAGS  += -ansi -Wall -Os -fomit-frame-pointer -g
+CFLAGS  += -std=c99 -Wall -Os -fomit-frame-pointer -g
 CPPFLAGS += -DCAML_NAME_SPACE -Irun/$(ARCH) -I$(CAMLLIB) -Irun/include
 OCAMLINCDIRS = -I mk -I mk/dirt -I mk/mm -I mk/ipc -I mk/proc -I mk/perms \
 	       -I ../servers -I ../userland -I ../drivers
