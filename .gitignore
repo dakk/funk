@@ -6,3 +6,5 @@
 *.iso
 bootimg/disk/boot/funk
 funk-x86*
+.build/
+*.log

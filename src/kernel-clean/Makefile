@@ -7,7 +7,6 @@ KERNEL  = funk-$(ARCH)-$(VERSION)
 LIBOCAML    = run/libocaml.a
 OCAMLKERNEL = mk/ocamlmkkernel.o
 LINK_SCRIPT	= link.ld
-LD = i686-elf-ld
 
 OBJS_C = $(shell find run -name "*.c") $(shell find boot -name "*.c")
 OBJS_S = $(shell find boot -name "*.S")

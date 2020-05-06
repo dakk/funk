@@ -24,23 +24,14 @@
 
 VERSION = $(shell cat VERSION)
 
-DISTFILES = AUTHORS ChangeLog COPYING Makefile README README.Devel TODO VERSION \
-		$(wildcard bootimg/*.img*) bootimg/Makefile bootimg/bochsrc* bootimg/gdbinit \
-		src/Makefile \
-		$(wildcard doc/*) \
-		src/kernel/Makefile $(wildcard src/kernel/*.ld) \
-		$(wildcard src/include/*.ml src/include/*.mli) \
-		$(wildcard src/kernel/mk/*.ml src/kernel/mk/*.mli src/kernel/mk/*.mll src/kernel/mk/*.mly src/kernel/mk/*.c) src/userland/gen_pci_ids.pl \
-		$(wildcard src/kernel/run/*.c) \
-		src/kernel/run/i686 $(wildcard src/kernel/run/i386/*.S src/kernel/run/i386/*.c src/kernel/run/i386/*.h) \
-		$(wildcard src/kernel/run/include/*.h) \
-		$(wildcard src/servers/*.ml src/servers/*.mli) \
-		$(wildcard src/userland/*.ml src/userland/*.mli)
+CCPATH = $(shell pwd)/.build/i386-unknown-elf/buildtools/bin
+CCBASE = i386-unknown-elf
+CCFLAGS = -D_GCC_WRAP_STDINT_H
 
 .PHONY: doc dist ChangeLog
 
 all doc clean debug:
-	$(MAKE) -C src $@
+	$(MAKE) -C src CCFLAGS=$(CCFLAGS) CC=$(CCPATH)/$(CCBASE)-cc LD=$(CCPATH)/$(CCBASE)-ld $@
 
 int:
 	$(MAKE) -C src int
@@ -49,15 +40,5 @@ int:
 qemu qemugdb qemu-x86_64 bochs bochsgdb qemulogs qemuconsole qemunet livecd: all
 	$(MAKE) -C bootimg $@
 
-dist: $(DISTFILES) doc
-	mkdir funk-$(VERSION)
-	cp  -r --no-dereference --parents $(DISTFILES) funk-$(VERSION)
-	tar jcvf funk-$(VERSION).tar.bz2 funk-$(VERSION)
-	rm -rf funk-$(VERSION)
-
-ChangeLog:
-	svn log > ChangeLog
-
-dist-regression: dist
-	cp funk-$(VERSION).tar.bz2 /tmp
-	cd /tmp; tar jxvf funk-$(VERSION).tar.bz2; cd funk-$(VERSION); make
+build-ct:
+	ct-ng build.2 

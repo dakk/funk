@@ -1,18 +1,30 @@
 # The funk kernel: a functional kernel
 
-This kernel aims at being a working kernel with processes
-and system calls, but the thing which makes it different
-from other kernels is that it is mainly written using
-the OCaml language, which is functional (by the way, it's
-a micro-kernel, because monolithic kernels are just bad).
+From original funk project (2005):
 
-It's exclusively intended to be a bad joke which means that
-you should not expect it to be:
-- fast,
-- secure,
-- useful,
-- etc.
+> This kernel aims at being a working kernel with processes
+> and system calls, but the thing which makes it different
+> from other kernels is that it is mainly written using
+> the OCaml language, which is functional (by the way, it's
+> a micro-kernel, because monolithic kernels are just bad).
+> 
+> It's exclusively intended to be a bad joke which means that
+> you should not expect it to be:
+> - fast,
+> - secure,
+> - useful,
+> - etc
 
+This is true even in 2020, but we're starting from this codebase
+to write some experimental concepts around osdev, functional programming
+and immutability, stay tuned.
+
+## Roadmap 2020
+
+1. ~~Automatic cross compiler creation for x86~~
+2. ~~Restore building of kernel-clean (i386) with latest OCaml version~~
+3. Restore building of kernel (i386 / i686)
+4. Complete x86_64 implementation
 
 ## Current status
 
@@ -32,36 +44,17 @@ missing some initialization bits, so doesn't even build yet.
 To compile the kernel you will need:
 
 - OCaml 4.09.1
-- extlib
-- mcopy
+- crosstool-ng
 
-With Debian the required packages are therefore: ocaml-nox, ocaml-findlib,
-libextlib-ocaml-dev and mtools.
+## Creating the cross-compiler
 
-With Gentoo the required packages are : dev-lang/ocaml, findlib, extlib and
-mtools.
+If you are running an x86_64 system (off course you are), you should first 
+build the cross-compiler using crosstool-ng: ```make build-ct```; it takes 
+some time, but unless we port the kernel to 64bit, this is the only method 
+to build.
 
 
-## Testing the kernel
+## Building and testing
 
-To test the kernel you must
-
-1. build the kernel (on an 32bit i386 system only, that can not work on a 64bit
-x86_64 system for now).
-
-```make```
-
-2. launch the simulation
-
-```make qemu```
-
-(you need qemu for that)
-
-2'. alternatively you can run a simulation with bochs
-
-```make bochs```
-
-2''. or in a console
-
-```make qemuconsole```
-
+1. Then build the system binary ```make```
+2. And run in ```make qemu``` or ```make bochs``` or ```make qemuconsole```
