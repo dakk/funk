@@ -27,7 +27,7 @@ SRC	=	../src
 KV	=	funk-x86_64-$(VERSION)
 KERNEL	=	$(SRC)/kernel-clean/$(KV)
 # IMG	=	funk.img
-IMG = os.iso
+IMG = funk.iso
 BASEIMG =	base.img.gz
 QEMU	=	qemu
 BOCHS	=	bochs
@@ -42,7 +42,7 @@ clean:
 	rm -rf $(IMG)
 
 qemu: $(IMG)
-	$(QEMU)-system-i386 -cdrom os.iso -m 256M
+	$(QEMU)-system-i386 -cdrom funk.iso -m 256M
 	#$(QEMU) -net none -fda funk.img -hda funk.img -boot a -m 16M
 
 qemugdb: $(IMG)
@@ -78,7 +78,7 @@ updateimg: $(IMG)
 $(IMG): $(KERNEL) 
 	cp ../src/kernel-clean/funk-x86_64-0.1.0 ./disk/boot/funk
 	genisoimage -R -b stage2_eltorito -no-emul-boot \
-		-boot-load-size 4 -A os -input-charset utf8 -quiet -boot-info-table -o ./os.iso ./disk/
+		-boot-load-size 4 -A os -input-charset utf8 -quiet -boot-info-table -o ./$@ ./disk/
 
 # gunzip < $(BASEIMG) > $(IMG)
 # mcopy -i $(IMG) $(KERNEL) ::funk || (rm -f $(IMG); false)

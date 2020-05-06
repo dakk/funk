@@ -6,31 +6,16 @@ CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
 OCAMLPACKAGES	= "/home/dakk/.opam/4.09.1+32bit/lib/ocaml/str.a"
 #extlib
 
-# defs
-CC       = gcc
-CFLAGS  += -Wall -Os -fomit-frame-pointer
-INCDIRS  = -Iarch/i386/include
-OCAMLFINDPARAMS = $(OCAMLPACKAGES)
-OCAMLINCDIRS = -I ipc -I mm -I perms -I proc
-OCAMLOPT = $(OCAMLPATH)/ocamlopt $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
-OCAMLLEX = $(OCAMLPATH)/ocamllex
-OCAMLYACC = $(OCAMLPATH)/ocamlyacc
-OCAMLDEP = $(OCAMLPATH)/ocamldep -native $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
-OCAMLDOC = $(OCAMLPATH)/ocamldoc $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
-LD       = ld
-LDFLAGS	 = 
-
-ifeq ($(findstring debug, $(MAKECMDGOALS)),debug)
-	CPPFLAGS   += -DDEBUG
-	CFLAGS += -g
-endif
 
 .PHONY: doc clean debug depend
 
 SUBDIRS = ipc mm proc perms
 
-CC       = gcc -m32
-INCDIRS  = -Iarch/i386/include -I../boot/i386/include -I../run/i386/include -I../mk/arch/i386/include -I/home/$(shell whoami)/.opam/4.09.1+32bit/lib/ocaml/
+OCAMLFINDPARAMS = $(OCAMLPACKAGES)
+OCAMLINCDIRS = -I ipc -I mm -I perms -I proc
+OCAMLOPT = $(OCAMLPATH)/ocamlopt $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
+CC       = i686-elf-gcc 
+INCDIRS  = -I/usr/lib/gcc/i686-elf/9.2.0/include/ -I/usr/include -Iarch/i386/include -I../boot/i386/include -I../run/i386/include -I../mk/arch/i386/include -I/home/$(shell whoami)/.opam/4.09.1+32bit/lib/ocaml/
 CFLAGS  += -Wall -Os -fomit-frame-pointer $(INCDIRS)
 SRC_ML  = $(wildcard *.ml)
 SRC_MLI = $(wildcard *.mli)

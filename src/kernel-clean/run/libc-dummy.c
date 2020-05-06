@@ -138,7 +138,7 @@ int system(const char *command)
 void *memcpy(void *dest, const void *src, size_t n)
 {
 #ifdef DEBUG
-/*  c_printf("memcpy(%p,%p,%u) called\n",dest,src,n);*/
+  c_printf("memcpy(%p,%p,%u) called\n",dest,src,n);
 #endif
   int i;
   char *cdest = dest;
@@ -152,7 +152,7 @@ void *memcpy(void *dest, const void *src, size_t n)
 void *memmove(void *dest, const void *src, size_t n)
 {
 #ifdef DEBUG
-/*  c_printf("memmove(%p,%p,%u) called\n",dest,src,n);*/
+  c_printf("memmove(%p,%p,%u) called\n",dest,src,n);
 #endif
   if((dest > src) && (dest < (src + n)))
   {
@@ -171,7 +171,7 @@ void *memmove(void *dest, const void *src, size_t n)
 void *memset(void *s, int c, size_t n)
 {
 #ifdef DEBUG
-  /*c_printf("memset(%p,%i,%u) called\n",s,c,n);*/
+  c_printf("memset(%p,%i,%u) called\n",s,c,n);
 #endif
   int i;
   char *cs = s;
