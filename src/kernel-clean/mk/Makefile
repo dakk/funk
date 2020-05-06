@@ -29,16 +29,27 @@ endif
 
 SUBDIRS = ipc mm proc perms
 
+CC       = gcc -m32
+INCDIRS  = -Iarch/i386/include -I../boot/i386/include -I../run/i386/include -I../mk/arch/i386/include -I/home/$(shell whoami)/.opam/4.09.1+32bit/lib/ocaml/
+CFLAGS  += -Wall -Os -fomit-frame-pointer $(INCDIRS)
 SRC_ML  = $(wildcard *.ml)
 SRC_MLI = $(wildcard *.mli)
 EXT_MLI = $(SRC_MLI) $(foreach i,$(SUBDIRS),$(wildcard $i/*.mli))
 EXT_ML  = $(SRC_ML) $(foreach i,$(SUBDIRS),$(wildcard $i/*.ml))
 CMX     = $(SRC_ML:.ml=.cmx) $(EXT_ML:.ml=.cmx)
 CMI     = $(SRC_MLI:.mli=.cmi) $(EXT_MLI:.mli=.cmi)
+SRC_C	= mm/memory_stubs.c 
+#$(wildcard *.c) $(foreach i,$(SUBDIRS),$(wildcard $i/*.c))
+OBJ_C	= $(SRC_C:.c=.o)
 
 OCAMLKERNEL = ocamlmkkernel.o
 
 CMX = misc.cmx utils.cmx mlkernel.cmx ipc/ipc.cmx ipc/mbox.cmx mm/memory.cmx mm/mm.cmx  perms/perms.cmx proc/process.cmx
+
+%.o: %.c
+	@echo $(CC) $(CFLAGS) -c -o $@
+	@echo "Generating $@..."
+	@ $(CC) $(CFLAGS) -c -o $@ $<
 
 %.cmx: %.ml
 	@echo "Generating $@..."
@@ -53,17 +64,11 @@ CMX = misc.cmx utils.cmx mlkernel.cmx ipc/ipc.cmx ipc/mbox.cmx mm/memory.cmx mm/
 	@ $(OCAMLOPT) -c -o $@ $<
 
 
-
 all: $(OCAMLKERNEL)
 
-$(OCAMLKERNEL): $(CMI) $(CMX)
-	# @echo "Making subdirectories cmx..."
-	# @make -C ipc
-	# @make -C mm
-	# @make -C perms
-	# @make -C proc
+$(OCAMLKERNEL): $(CMI) $(CMX) $(OBJ_C)
 	@echo "Generating $@... $(CMX)"
-	@ $(OCAMLOPT) -linkall $(CMXA) $(CMX) -output-obj -o $@
+	@ $(OCAMLOPT) -linkall $(OBJ_C) $(CMXA) $(CMX) -output-obj -o $@
 	# was -linkpkg
 	@echo "Done with microkernel generation"
 
@@ -71,7 +76,7 @@ $(OCAMLKERNEL): $(CMI) $(CMX)
 clean:
 	@echo "Cleaning..."
 	@rm -rf *.cm* *.o $(OCAMLKERNEL)
-	@make -C ipc   clean
-	@make -C mm    clean
-	@make -C perms clean
-	@make -C proc  clean
+	@rm -rf ipc/*.cm* ipc/*.o
+	@rm -rf mm/*.cm* mm/*.o
+	@rm -rf perms/*.cm* perms/*.o
+	@rm -rf proc/*.cm* proc/*.o

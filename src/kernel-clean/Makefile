@@ -25,6 +25,7 @@ kernel: $(KERNEL)
 
 $(KERNEL): run boot $(LIBOCAML) $(OBJS_O) $(LINK_SCRIPT)
 	$(LD) $(LDFLAGS) -static -o $(KERNEL) -e multiboot_entry \
+              ./mk/mm/memory_stubs.o \
               $(OBJS_O) $(LIBOCAML) $(shell $(CC) -print-libgcc-file-name) \
               -T $(LINK_SCRIPT)
 

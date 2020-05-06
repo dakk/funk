@@ -525,6 +525,24 @@ int puts(const char *s)
   return 0;
 }
 
+int vfprintf(FILE *stream, const char *format, ...)
+{
+#ifdef DEBUG
+  c_printf("vfprintf(%p,%s) called\n",stream,format);
+#endif
+  if (stream != stdin && stream != stdout && stream != stderr)
+    return notImpl_int();
+  else {
+    va_list args;
+    int i;
+    va_start(args,format);
+    i = vsnprintf(buf,sizeof(buf),format,args);
+    va_end(args);
+    print_string(buf);
+    return i;
+  }
+}
+
 int fprintf(FILE *stream, const char *format, ...)
 {
 #ifdef DEBUG
@@ -1217,4 +1235,52 @@ static const unsigned short int *__ctype_b =
 const unsigned short int **__ctype_b_loc(void)
 {
   return &__ctype_b;
+}
+
+
+
+void __stack_chk_fail(void) {
+	c_printf("stack fail");
+}
+void __stack_chk_fail_local(void) {
+	c_printf("stack fail local");
+}
+
+
+long __divdi3 (long a, long b) { return a/b; }
+long __moddi3 (long a, long b) { return a%b; }
+long __udivdi3 (long a, long b) { return a/b; }
+long __umoddi3 (long a, long b) { return a%b; }
+
+void abort(void) {}
+
+
+double fma(double x, double y, double z) { return x; }
+int memcmp(const void *s1, const void *s2, size_t n) { 
+	c_printf("memcmp");return 0; }
+int munmap(void *addr, size_t len) { 
+	c_printf("munmap");return 0; }
+void *mmap64(void *addr, size_t length, int prot, int flags,
+                  int fd, off_t offset) { 
+	c_printf("mmap64");return NULL; }
+int sigismember(const void *set, int signo) { return 0; }
+double fmin(double x, double y) { return 0.0; }
+double log1p(double x){ return 0.0; }
+double hypot(double x, double y){ return 0.0; }
+double expm1(double x){ return 0.0; }
+double nextafter(double x, double y){ return 0.0; }
+double round(double x){ return 0.0; } 
+void uselocale() {}
+int isatty(int fd) { return 0; }
+void newlocale() {}
+void freelocale() {}
+long double strtod_l(const char *nptr, char **endptr, /*locale_t*/ int locale) { return 0.0; }
+
+char *secure_getenv(const char *name) {
+	return getenv(name);
+}
+
+int ioctl(int fd, unsigned long request, ...) {
+	c_printf("ioctl");
+	return 0;
 }

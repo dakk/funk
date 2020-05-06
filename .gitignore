@@ -3,3 +3,6 @@
 *.o
 *.a
 .depend
+*.iso
+bootimg/disk/boot/funk
+funk-x86*
