@@ -76,7 +76,7 @@ updateimg: $(IMG)
 
 #$(BASEIMG)
 $(IMG): $(KERNEL) 
-	cp ../src/kernel-clean/funk-x86_64-0.1.0 ./disk/boot/funk
+	cp ../src/kernel-clean/$(KV) ./disk/boot/funk
 	genisoimage -R -b stage2_eltorito -no-emul-boot \
 		-boot-load-size 4 -A os -input-charset utf8 -quiet -boot-info-table -o ./$@ ./disk/
 

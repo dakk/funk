@@ -25,12 +25,13 @@
 #ifndef __LIBC_DUMMY_H
 #define __LIBC_DUMMY_H
 #include <stddef.h>
-#include <sys/types.h>
+#include <stdint.h>
 typedef void FILE;
 #define LONG_MIN (-2147483648UL)
 #define HUGE_VAL (__extension__ 0x1.0p2047)
 #define INT_MAX 2147483647
 #define EOF -1
+
 
 #define ENOSYS 1
 #define ERANGE 2
@@ -42,10 +43,13 @@ typedef void FILE;
 #define time_t int
 #define suseconds_t int
 
-// struct timeval {
-//   time_t         tv_sec;   /* seconds */
-//   suseconds_t    tv_usec;  /* microseconds */
-// };
+typedef unsigned int off_t;
+typedef size_t ssize_t;
+
+struct timeval {
+  time_t         tv_sec;   /* seconds */
+  suseconds_t    tv_usec;  /* microseconds */
+};
 
 struct timezone {
   int  tz_minuteswest; /* minutes W of Greenwich */

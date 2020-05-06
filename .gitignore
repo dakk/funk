@@ -8,3 +8,4 @@ bootimg/disk/boot/funk
 funk-x86*
 .build/
 *.log
+bochslog.txt

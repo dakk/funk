@@ -24,8 +24,8 @@
 *                                                                             *
 ******************************************************************************/
 
-#include <stdarg.h>
 #include "libc-dummy.h"
+#include <stdarg.h>
 #include "input.h"
 #include "output.h"
 #include "vsnprintf.h"
