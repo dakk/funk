@@ -1054,7 +1054,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 #ifdef DEBUG
   /*c_printf("gettimeofday(%p,%p) called\n",tv,tz);*/
 #endif
-  /* le temps est grossier: on a des machines à 1GHz en gros, on va dire */
+  /* le temps est grossier: on a des machines ï¿½ 1GHz en gros, on va dire */
   tick_t tick;
 
   if (!tv) return notImpl_int();
@@ -1089,7 +1089,7 @@ clock_t times(struct tms *buf)
 #ifdef DEBUG
   c_printf("times(%p) called\n",buf);
 #endif
-  /* De même, on va dire que les ticks sont à 1KHz, en supposant une horloge à 1GHz */
+  /* De mï¿½me, on va dire que les ticks sont ï¿½ 1KHz, en supposant une horloge ï¿½ 1GHz */
   tick_t tick;
   ticks(tick);
   buf->tms_stime = 0;

@@ -186,19 +186,30 @@ static struct system_table
   unsigned short int limit;
   unsigned int base_addr;
 }
-system_table =
-{
-  .limit     = sizeof(gdt_contents)-1,
-  .base_addr = (unsigned int) gdt_contents,
-},
-  idt_table =
-{
-  .limit     = sizeof(idt_contents)-1,
-  .base_addr = (unsigned int) idt_contents,
-};
-
+system_table,
+// =
+// {
+//   .limit     = sizeof(gdt_contents)-1,
+//   .base_addr = (unsigned int) gdt_contents,
+// },
+idt_table 
+// =
+// {
+//   .limit     = sizeof(idt_contents)-1,
+//   .base_addr = (unsigned int) idt_contents,
+// };
+;
 void setup_kernel()
 {
+	system_table = (struct system_table) {
+		.limit     = sizeof(gdt_contents)-1,
+		.base_addr = (unsigned int) gdt_contents
+	};
+	system_table = (struct system_table) {
+		.limit     = sizeof(idt_contents)-1,
+		.base_addr = (unsigned int) idt_contents
+	};
+
   setup_pagination();
 
   /* Load the gdt register. */

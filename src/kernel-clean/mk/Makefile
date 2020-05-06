@@ -1,20 +1,22 @@
+OCAMLPATH = ~/.opam/4.09.1+32bit/bin
 ARCH    = $(shell uname -m)
 VERSION = $(shell cat ../../VERSION)
 KERNEL  = funk-$(ARCH)-$(VERSION)
-CAMLLIB = $(shell ocamlc -where)
-OCAMLPACKAGES	= "str extlib"
+CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
+OCAMLPACKAGES	= "/home/dakk/.opam/4.09.1+32bit/lib/ocaml/str.a"
+#extlib
 
 # defs
 CC       = gcc
-CFLAGS  += -ansi -Wall -Os -fomit-frame-pointer
+CFLAGS  += -Wall -Os -fomit-frame-pointer
 INCDIRS  = -Iarch/i386/include
-OCAMLFINDPARAMS = -package $(OCAMLPACKAGES)
-OCAMLINCDIRS = 
-OCAMLOPT = ocamlfind ocamlopt $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
-OCAMLLEX = ocamllex
-OCAMLYACC = ocamlyacc
-OCAMLDEP = ocamlfind ocamldep -native $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
-OCAMLDOC = ocamlfind ocamldoc $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
+OCAMLFINDPARAMS = $(OCAMLPACKAGES)
+OCAMLINCDIRS = -I ipc -I mm -I perms -I proc
+OCAMLOPT = $(OCAMLPATH)/ocamlopt $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
+OCAMLLEX = $(OCAMLPATH)/ocamllex
+OCAMLYACC = $(OCAMLPATH)/ocamlyacc
+OCAMLDEP = $(OCAMLPATH)/ocamldep -native $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
+OCAMLDOC = $(OCAMLPATH)/ocamldoc $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
 LD       = ld
 LDFLAGS	 = 
 
@@ -29,12 +31,14 @@ SUBDIRS = ipc mm proc perms
 
 SRC_ML  = $(wildcard *.ml)
 SRC_MLI = $(wildcard *.mli)
+EXT_MLI = $(SRC_MLI) $(foreach i,$(SUBDIRS),$(wildcard $i/*.mli))
 EXT_ML  = $(SRC_ML) $(foreach i,$(SUBDIRS),$(wildcard $i/*.ml))
-CMX     = $(SRC_ML:.ml=.cmx)
-CMI     = $(SRC_ML:.ml=.cmi)
+CMX     = $(SRC_ML:.ml=.cmx) $(EXT_ML:.ml=.cmx)
+CMI     = $(SRC_MLI:.mli=.cmi) $(EXT_MLI:.mli=.cmi)
 
 OCAMLKERNEL = ocamlmkkernel.o
 
+CMX = misc.cmx utils.cmx mlkernel.cmx ipc/ipc.cmx ipc/mbox.cmx mm/memory.cmx mm/mm.cmx  perms/perms.cmx proc/process.cmx
 
 %.cmx: %.ml
 	@echo "Generating $@..."
@@ -53,13 +57,14 @@ OCAMLKERNEL = ocamlmkkernel.o
 all: $(OCAMLKERNEL)
 
 $(OCAMLKERNEL): $(CMI) $(CMX)
-	@echo "Making subdirectories cmx..."
-	@make -C ipc
-	@make -C mm
-	@make -C perms
-	@make -C proc
-	@echo "Generating $@..."
-	@ $(OCAMLOPT) -linkpkg $(EXT_CMXA) $(EXT_CMX) -output-obj -o $@
+	# @echo "Making subdirectories cmx..."
+	# @make -C ipc
+	# @make -C mm
+	# @make -C perms
+	# @make -C proc
+	@echo "Generating $@... $(CMX)"
+	@ $(OCAMLOPT) -linkall $(CMXA) $(CMX) -output-obj -o $@
+	# was -linkpkg
 	@echo "Done with microkernel generation"
 
 

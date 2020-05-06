@@ -2,7 +2,7 @@
 
 ARCH    = $(shell uname -m)
 VERSION = $(shell cat ../../VERSION)
-CAMLLIB = $(shell ocamlc -where)
+CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
 KERNEL  = funk-$(ARCH)-$(VERSION)
 LIBOCAML    = run/libocaml.a
 OCAMLKERNEL = mk/ocamlmkkernel.o

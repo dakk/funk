@@ -42,10 +42,10 @@ typedef void FILE;
 #define time_t int
 #define suseconds_t int
 
-struct timeval {
-  time_t         tv_sec;   /* seconds */
-  suseconds_t    tv_usec;  /* microseconds */
-};
+// struct timeval {
+//   time_t         tv_sec;   /* seconds */
+//   suseconds_t    tv_usec;  /* microseconds */
+// };
 
 struct timezone {
   int  tz_minuteswest; /* minutes W of Greenwich */

@@ -9,8 +9,8 @@
 (** An entry of the page table *)
 type page_table_entry =
 { 
-  mutable addr     : string; (* Address of the physical page. *)
-  mutable avail    : string; (* Available string for whatever use. *)
+  mutable addr     : bytes; (* Address of the physical page. *)
+  mutable avail    : bytes; (* Available string for whatever use. *)
   mutable dirty    : bool;
   mutable accessed : bool;
   mutable us_level : bool;   (* User/Supervisor level. *)
@@ -32,8 +32,8 @@ let create_page_table () = Hashtbl.create 100
  * We need ways to convert from and to our defined type. *)
 let to_page_table_entry internal_entry =
   let entry = { 
-    addr     = String.create 20; 
-    avail    = String.create 2; 
+    addr     = Bytes.create 20; 
+    avail    = Bytes.create 2; 
     dirty    = false;
     accessed = false;
     us_level = false;
@@ -65,8 +65,8 @@ let from_page_table_entry entry =
     |true  -> 1
     |false -> 0 in
   let internal_entry = ref 0 in
-  let addr  =  int_of_string ("0b" ^ (String.sub entry.addr 0 20)) lsl 11 in
-  let avail = (int_of_string ("0b" ^ (String.sub entry.avail 0 2)) lsl 9) + addr in
+  let addr  =  int_of_string ("0b" ^ (Bytes.to_string @@ Bytes.sub entry.addr 0 20)) lsl 11 in
+  let avail = (int_of_string ("0b" ^ (Bytes.to_string @@ Bytes.sub entry.avail 0 2)) lsl 9) + addr in
   let dirty    = ((int_of_bool entry.dirty)    lsl 6) + avail in
   let accessed = ((int_of_bool entry.accessed) lsl 5) + dirty in
   let us_level = ((int_of_bool entry.us_level) lsl 2) + accessed in
@@ -79,12 +79,12 @@ let is_valid_entry entry =
   let rec check s i =
     if i < 0 then
       true
-    else match s.[i] with
+    else match Bytes.get s i with
            |'0'
            |'1' -> check s (i-1)
            |_   -> false
   in
-    if not((String.length entry.addr = 20) &&
-    (String.length entry.avail   = 2) &&
+    if not((Bytes.length entry.addr = 20) &&
+    (Bytes.length entry.avail   = 2) &&
     (check entry.addr 19) &&
     (check entry.avail 1)) then raise (Invalid_page_table_entry entry)

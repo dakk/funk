@@ -1,8 +1,8 @@
 CAMLLIB = $(shell ocamlc -where)
 
-CC       = gcc
+CC       = gcc -m32
 INCDIRS  = -I../run/i386/include -Ii386/include -I../mk/arch/i386/include
-CFLAGS  += -ansi -Wall -Os -fomit-frame-pointer
+CFLAGS  += -Wall -Os -fomit-frame-pointer
 CPPFLAGS += -DCAML_NAME_SPACE $(INCDIRS) -I$(CAMLLIB)
 
 ifeq ($(findstring debug, $(MAKECMDGOALS)),debug)

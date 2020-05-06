@@ -14,7 +14,7 @@ val init : unit -> unit
 (* val remap_page_range : nativeint -> nativeint -> nativeint -> int -> unit *)
 
 (** The type of a pointer to the momory. *)
-type t
+type t = bytes
 
 (** Get a pointer to the memory at given address. *)
 val of_addr : int -> t

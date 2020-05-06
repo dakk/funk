@@ -5,10 +5,11 @@
 (* early_kprintf will be set to Filecmds.cat_to_append "dmesg_file" *)
 (* during VFS initialization. *)
 
-let early_messages = DynArray.create ()
+let early_messages = ()
+  (* DynArray.create () *)
 
-let early_fkprintf (s : string) =
-  DynArray.add early_messages s
+let early_fkprintf (s : string) = ()
+  (* DynArray.add early_messages s *)
 
 let fkprintf = ref early_fkprintf
 
@@ -24,8 +25,8 @@ let kprintf identifier =
 
 let set_fkprintf func =
   fkprintf := func;
-  DynArray.iter !fkprintf early_messages;
-  DynArray.clear early_messages;
+  (* DynArray.iter !fkprintf early_messages;
+  DynArray.clear early_messages; *)
   kprintf "LOG" "Restored early messages\n"
 
 let get_fkprintf () =
