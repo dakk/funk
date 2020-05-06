@@ -1,5 +1,4 @@
-The funk kernel: a functional kernel
-====================================
+# The funk kernel: a functional kernel
 
 This kernel aims at being a working kernel with processes
 and system calls, but the thing which makes it different
@@ -15,8 +14,7 @@ you should not expect it to be:
 - etc.
 
 
-Current status
-==============
+## Current status
 
 Only the i386 architecture is supported for now. Here is what's
 currently working:
@@ -29,13 +27,11 @@ currently working:
 Some of the x86_64 port has been done (notable PAE support), but is still
 missing some initialization bits, so doesn't even build yet.
 
-Prerequisities
-==============
+## Prerequisities
 
 To compile the kernel you will need:
 
-- OCaml 3.11
-- findlib
+- OCaml 4.09.1
 - extlib
 - mcopy
 
@@ -46,27 +42,26 @@ With Gentoo the required packages are : dev-lang/ocaml, findlib, extlib and
 mtools.
 
 
-Testing the kernel
-==================
+## Testing the kernel
 
 To test the kernel you must
 
 1. build the kernel (on an 32bit i386 system only, that can not work on a 64bit
 x86_64 system for now).
 
-make
+```make```
 
 2. launch the simulation
 
-make qemu
+```make qemu```
 
 (you need qemu for that)
 
 2'. alternatively you can run a simulation with bochs
 
-make bochs
+```make bochs```
 
 2''. or in a console
 
-make qemuconsole
+```make qemuconsole```
 
