@@ -26,7 +26,7 @@ VERSION = $(shell cat VERSION)
 
 CCPATH = $(shell pwd)/.build/i386-unknown-elf/buildtools/bin
 CCBASE = i386-unknown-elf
-CCFLAGS = "-D_GCC_WRAP_STDINT_H-DDEBUG" # -DMALLOC"
+CCFLAGS = "-D_GCC_WRAP_STDINT_H" # -DDEBUG" # -DMALLOC"
 
 .PHONY: doc dist ChangeLog
 

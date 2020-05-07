@@ -38,15 +38,14 @@
 #include <caml/mlvalues.h>
 
 extern void setup_kernel();
-extern void setup_memory(void* start, void* end);
+extern void setup_memory(void *start, void *end);
 
 static value mlkernel_arg = Val_int(0);
 
 /* macro used to check the flags in mbi struct */
-#define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
+#define CHECK_FLAG(flags, bit) ((flags) & (1 << (bit)))
 
 unsigned long mem_size;
-
 
 extern uintnat caml_init_percent_free;
 extern uintnat caml_init_max_percent_free;
@@ -68,112 +67,113 @@ extern int caml_startup_aux(int);
  */
 value caml_startup_funk(char **argv)
 {
-  char_os * exe_name, * proc_self_exe;
-  char tos;
+	char_os *exe_name, *proc_self_exe;
+	char tos;
 
-//   c_printf("caml_init_domain");
-//   caml_init_domain();
-  c_printf("caml_parse_ocamlrunparam()");
-  caml_parse_ocamlrunparam();
-//   c_printf("CAML_EVENTLOG_INIT");
-//   CAML_EVENTLOG_INIT();
-  c_printf("caml_startup_aux()");
-  if (!caml_startup_aux(0))
-    return Val_unit;
+	//   c_printf("caml_init_domain");
+	//   caml_init_domain();
+	c_printf("caml_parse_ocamlrunparam()");
+	caml_parse_ocamlrunparam();
+	//   c_printf("CAML_EVENTLOG_INIT");
+	//   CAML_EVENTLOG_INIT();
+	c_printf("caml_startup_aux()");
+	if (!caml_startup_aux(0))
+		return Val_unit;
 
-#ifdef WITH_SPACETIME
-  c_printf("caml_spacetime_initialize()");
-  caml_spacetime_initialize();
-#endif
-  c_printf("caml_init_frame_descriptors()");
-  caml_init_frame_descriptors();
-  c_printf("caml_init_locale()");
-  caml_init_locale();
-#if defined(_MSC_VER) && __STDC_SECURE_LIB__ >= 200411L
-  caml_install_invalid_parameter_handler();
-#endif
-  c_printf("caml_init_custom_operations()");
-  caml_init_custom_operations();
-  //   Caml_state->top_of_stack = &tos;
-  c_printf("caml_init_gc()");
-  caml_init_gc (caml_init_minor_heap_wsz, caml_init_heap_wsz,
-                caml_init_heap_chunk_sz, caml_init_percent_free,
-                caml_init_max_percent_free, caml_init_major_window,
-                caml_init_custom_major_ratio, caml_init_custom_minor_ratio,
-                caml_init_custom_minor_max_bsz);
-  //   init_static();
-  c_printf("caml_init_signals");
-  caml_init_signals();
-  c_printf("caml_init_backtrace");
-  caml_init_backtrace();
-  c_printf("caml_debugger_init");
-  caml_debugger_init ();
+	c_printf("caml_init_frame_descriptors()");
+	caml_init_frame_descriptors();
+	c_printf("caml_init_locale()");
+	caml_init_locale();
+	
+	c_printf("caml_init_custom_operations()");
+	caml_init_custom_operations();
+	//   Caml_state->top_of_stack = &tos;
+	c_printf("caml_init_gc()");
+	caml_init_gc(caml_init_minor_heap_wsz, caml_init_heap_wsz,
+				 caml_init_heap_chunk_sz, caml_init_percent_free,
+				 caml_init_max_percent_free, caml_init_major_window,
+				 caml_init_custom_major_ratio, caml_init_custom_minor_ratio,
+				 caml_init_custom_minor_max_bsz);
+	//   init_static();
+	c_printf("caml_init_signals");
+	caml_init_signals();
+	c_printf("caml_init_backtrace");
+	caml_init_backtrace();
+	c_printf("caml_debugger_init");
+	caml_debugger_init();
 }
 
 /* kernel entry point function, called from assembler code */
-void kernel_entry(unsigned long magic,unsigned long addr)
+void kernel_entry(unsigned long magic, unsigned long addr)
 {
-  c_printf("starting...");
-  /* we will need a multiboot info pointer */
-  multiboot_info_t *mbi;
-  memory_map_t *mmap;
-  unsigned long mmap_size;
-  unsigned long block_size = 1<<20; /* assume at least 1MB upper memory */
-  static char * argv[]={ "ocaml", NULL };
+	c_printf("starting...");
+	/* we will need a multiboot info pointer */
+	multiboot_info_t *mbi;
+	memory_map_t *mmap;
+	unsigned long mmap_size;
+	unsigned long block_size = 1 << 20; /* assume at least 1MB upper memory */
+	static char *argv[] = {"ocaml", NULL};
 
-  /* check the multiboot-compliant magic number */
-  if(magic!=MULTIBOOT_BOOTLOADER_MAGIC) return;
+	/* check the multiboot-compliant magic number */
+	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
+		return;
 
-  /* now set mbi to the right address */
-  mbi = (multiboot_info_t *) addr;
-  mmap = (memory_map_t *) mbi->mmap_addr;
-  mmap_size = mbi->mmap_length;
+	/* now set mbi to the right address */
+	mbi = (multiboot_info_t *)addr;
+	mmap = (memory_map_t *)mbi->mmap_addr;
+	mmap_size = mbi->mmap_length;
 
-  if(CHECK_FLAG(mbi->flags,6))
-    while (mmap_size>0)
-    {
-      if ((void *) mmap->base_addr_low == &_begin) {
-	block_size = mmap->length_low;
-	break;
-      }
-      mmap_size-=sizeof(*mmap);
-      mmap++;
-    }
-  if (&_begin+block_size<&__bss_end) {
-	  c_printf("not enough memory for funk: %lu upper memory needed",&__bss_end-&_begin);
-	  while(1);
-  }
+	if (CHECK_FLAG(mbi->flags, 6))
+		while (mmap_size > 0)
+		{
+			if ((void *)mmap->base_addr_low == &_begin)
+			{
+				block_size = mmap->length_low;
+				break;
+			}
+			mmap_size -= sizeof(*mmap);
+			mmap++;
+		}
+	if (&_begin + block_size < &__bss_end)
+	{
+		c_printf("not enough memory for funk: %lu upper memory needed", &__bss_end - &_begin);
+		while (1)
+			;
+	}
+	/* clean bss */
+	c_printf("cleaning bss");
+	memset(&__bss_start, 0, &__bss_end - &__bss_start);
+	/* gcc seems bugged and move some of the following affectations *before* memset... */
+	wmb();
+	/* TODO: more accurate value */
+	mem_size = (unsigned long)(&_begin + block_size);
+	heap = &_end;
+	heaplimit = &_begin + block_size;
+	last_seen = heap + 2 + 4 * sizeof(void *);
 
-  /* clean bss */
-  c_printf("cleaning bss");
-  memset(&__bss_start,0,&__bss_end-&__bss_start); 
-  /* gcc seems bugged and move some of the following affectations *before* memset... */
-  wmb();
-  /* TODO: more accurate value */
-  mem_size = (unsigned long)(&_begin+block_size);
-  heap = &_end;
-  heaplimit = &_begin+block_size;
-  last_seen = heap + 2 + 4*sizeof(void*);
+	/* then we can setup the kernel */
+	c_printf("setup_kernel()");
+	setup_kernel();
+	c_printf("bootloader %s", mbi->boot_loader_name);
 
-  /* then we can setup the kernel */
-  c_printf("setup_kernel()");
-  setup_kernel();
+	/* We also setup the memory */
+	c_printf("setup_memory()");
+	setup_memory(heap + HEAP_OFFSET, heaplimit);
 
-  /* We also setup the memory */
-  c_printf("setup_memory()");
-  setup_memory(heap + HEAP_OFFSET, heaplimit);
+	/* then call the caml startup function */
+	c_printf("caml_startup_funk()");
+	caml_startup_funk(argv);
 
-  /* then call the caml startup function */
-  c_printf("caml_startup_funk()");
-  caml_startup_funk(argv);
+	/* initialize threads */
+	//thread_init();
+	setup_idt();
 
-  /* initialize threads */
-  //thread_init();
+	/* start the ml kernel... */
+	c_printf("camlMlkernel__entry()");
+	camlMlkernel__entry();
+	c_printf("camlMlkernel__entry end()");
 
-  /* start the ml kernel... */
-  c_printf("camlMlkernel__entry()");
-  camlMlkernel__entry();
-//   c_printf("camlMlkernel__entry end()");
-
-  while(1) {}
+	while (1)
+	{
+	}
 }

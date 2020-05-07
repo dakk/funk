@@ -1,5 +1,11 @@
 default=0
-timeout=0
+timeout=2
 
 title Funk
-kernel /boot/funk
+	kernel /boot/funk
+	boot
+
+title Funk VBE
+	kernel /boot/funk
+	vbeset 0x115
+	boot
