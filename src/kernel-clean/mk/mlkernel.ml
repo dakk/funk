@@ -22,6 +22,7 @@
 *                                                                             *
 ******************************************************************************)
 
+external puts : string -> unit = "caml_print_string" [@@noalloc]
 (**
   * Main kernel function.
   *
@@ -36,11 +37,23 @@
 
 let initialized = ref false
 
+let a = ref "mondo"
+
+let rec print_infinite n = 
+  puts "inf";
+  print_infinite (n+1)
+;;
+
 (* ml kernel entry point *)
-let mlkernel_entry arg =
-  try
+let mlkernel_entry arg = 
+  puts "ciao"; 
+  puts !a;
+  print_infinite 0;
+  ()
+  (* Utils.kprintf "mlkernel" "Uncatched exception"; *)
+  (* try
     (*Console.clear (Console.get_current_console ());*)
-    Printf.printf "Toplevel parameter is %d\n%!" arg;
+    Printf.printf "Toplevel parameter is\n%!";
     (*Printf.printf "Current thread: %d\n%!" (KThread.id (KThread.self ()));*)
     (* Don't rescan the PCI list since it would
      * forget all previously acquired devices. *)
@@ -80,7 +93,9 @@ let mlkernel_entry arg =
   with
     | e ->
         Utils.kprintf "mlkernel" "Uncatched exception: %s\nI'm dying now...\n%!" (Printexc.to_string e);
-        exit 0
+        exit 0 *)
+;;
 
+mlkernel_entry 0;
 (* export the kernel entry function to C *)
-let _ = Callback.register "mlkernel_entry" mlkernel_entry
+(* let _ = Callback.register "mlkernel_entry" mlkernel_entry *)

@@ -253,15 +253,15 @@ void *malloc(size_t size)
       prv = *(void**) (cur - 3*s);
       nxt = *(void**) (cur - 2*s);
       if (prv)
-		*(void**) (prv - 2*s) = new;
+        *(void**) (prv - 2*s) = new;
       if (nxt)
-		*(void**) (nxt - 3*s) = new;
+        *(void**) (nxt - 3*s) = new;
       *(void**) (new - 3*s) = prv;
       *(void**) (new - 2*s) = nxt;
       *(int*)   (new - s)   = *(int*) (cur - s) - rSize;
       last_seen = nxt;
       if (cur == *(void**)(heap + HEAP_OFFSET))
-		*(void**)(heap + HEAP_OFFSET) = new;
+        *(void**)(heap + HEAP_OFFSET) = new;
       *(int*)(cur - 3*s) = rSize;
 #ifdef DEBUG
     c_printf ("new: %p (prev: %p, next: %p, size: %d)\n", new, *(void**)(new-3*s), *(void**)(new-2*s), *(int*)(new-s));

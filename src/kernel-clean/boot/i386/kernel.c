@@ -35,10 +35,8 @@
 /*#include "threads.h"*/
 #include "asm-utils.h"
 #include "kernel.h"
-#include <caml/callback.h>
+#include <caml/mlvalues.h>
 
-/* external functions prototypes */
-extern void caml_startup(char **args);
 extern void setup_kernel();
 extern void setup_memory(void* start, void* end);
 
@@ -49,9 +47,73 @@ static value mlkernel_arg = Val_int(0);
 
 unsigned long mem_size;
 
+
+extern uintnat caml_init_percent_free;
+extern uintnat caml_init_max_percent_free;
+extern uintnat caml_init_minor_heap_wsz;
+extern uintnat caml_init_heap_chunk_sz;
+extern uintnat caml_init_heap_wsz;
+extern uintnat caml_init_max_stack_wsz;
+extern uintnat caml_init_major_window;
+extern uintnat caml_init_custom_major_ratio;
+extern uintnat caml_init_custom_minor_ratio;
+extern uintnat caml_init_custom_minor_max_bsz;
+extern uintnat caml_trace_level;
+extern int caml_startup_aux(int);
+
+/* caml_startup rewrite
+ *
+ * the original version tries to open the binary file and read the content;
+ * we avoid this by calling the ocaml main function manually
+ */
+value caml_startup_funk(char **argv)
+{
+  char_os * exe_name, * proc_self_exe;
+  char tos;
+
+//   c_printf("caml_init_domain");
+//   caml_init_domain();
+  c_printf("caml_parse_ocamlrunparam()");
+  caml_parse_ocamlrunparam();
+//   c_printf("CAML_EVENTLOG_INIT");
+//   CAML_EVENTLOG_INIT();
+  c_printf("caml_startup_aux()");
+  if (!caml_startup_aux(0))
+    return Val_unit;
+
+#ifdef WITH_SPACETIME
+  c_printf("caml_spacetime_initialize()");
+  caml_spacetime_initialize();
+#endif
+  c_printf("caml_init_frame_descriptors()");
+  caml_init_frame_descriptors();
+  c_printf("caml_init_locale()");
+  caml_init_locale();
+#if defined(_MSC_VER) && __STDC_SECURE_LIB__ >= 200411L
+  caml_install_invalid_parameter_handler();
+#endif
+  c_printf("caml_init_custom_operations()");
+  caml_init_custom_operations();
+  //   Caml_state->top_of_stack = &tos;
+  c_printf("caml_init_gc()");
+  caml_init_gc (caml_init_minor_heap_wsz, caml_init_heap_wsz,
+                caml_init_heap_chunk_sz, caml_init_percent_free,
+                caml_init_max_percent_free, caml_init_major_window,
+                caml_init_custom_major_ratio, caml_init_custom_minor_ratio,
+                caml_init_custom_minor_max_bsz);
+  //   init_static();
+  c_printf("caml_init_signals");
+  caml_init_signals();
+  c_printf("caml_init_backtrace");
+  caml_init_backtrace();
+  c_printf("caml_debugger_init");
+  caml_debugger_init ();
+}
+
 /* kernel entry point function, called from assembler code */
 void kernel_entry(unsigned long magic,unsigned long addr)
 {
+  c_printf("starting...");
   /* we will need a multiboot info pointer */
   multiboot_info_t *mbi;
   memory_map_t *mmap;
@@ -81,7 +143,9 @@ void kernel_entry(unsigned long magic,unsigned long addr)
 	  c_printf("not enough memory for funk: %lu upper memory needed",&__bss_end-&_begin);
 	  while(1);
   }
+
   /* clean bss */
+  c_printf("cleaning bss");
   memset(&__bss_start,0,&__bss_end-&__bss_start); 
   /* gcc seems bugged and move some of the following affectations *before* memset... */
   wmb();
@@ -90,17 +154,26 @@ void kernel_entry(unsigned long magic,unsigned long addr)
   heap = &_end;
   heaplimit = &_begin+block_size;
   last_seen = heap + 2 + 4*sizeof(void*);
-  /* then we can setup the kernel */
-  setup_kernel();
-  /* We also setup the memory */
-  setup_memory(heap + HEAP_OFFSET, heaplimit);
-  /* then call the caml startup function */
-  caml_startup(argv);
-  /* initialize threads */
-/*  thread_init();*/
-  /* start the ml kernel... */
-/*  create_thread(caml_named_value("mlkernel_entry"), &mlkernel_arg);*/
-  caml_callback(*caml_named_value("mlkernel_entry"), Val_int(mlkernel_arg));
 
-  /* and stay idle */
+  /* then we can setup the kernel */
+  c_printf("setup_kernel()");
+  setup_kernel();
+
+  /* We also setup the memory */
+  c_printf("setup_memory()");
+  setup_memory(heap + HEAP_OFFSET, heaplimit);
+
+  /* then call the caml startup function */
+  c_printf("caml_startup_funk()");
+  caml_startup_funk(argv);
+
+  /* initialize threads */
+  //thread_init();
+
+  /* start the ml kernel... */
+  c_printf("camlMlkernel__entry()");
+  camlMlkernel__entry();
+  c_printf("camlMlkernel__entry end()");
+
+  while(1) {}
 }
