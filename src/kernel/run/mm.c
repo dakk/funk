@@ -192,13 +192,16 @@ void set_page_range_attr(unsigned long *pgd, unsigned long virt_addr, unsigned l
 
 void setup_pagination()
 {
+  c_printf("setup_pagination()");
 #ifdef __x86_64__
   page_base = new_page_top();
 #else
   page_base = new_page_dir();
 #endif
 
+  c_printf("map_page_range()");
   map_page_range(page_base, 0, MEM_SIZE, 0, 3);
+  c_printf("set_page_range_attr()");
   set_page_range_attr(page_base, (unsigned long)&_begin, &_ro_end - &_begin, 1);
 
   /* Fill the page table. */

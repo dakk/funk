@@ -22,6 +22,7 @@
 *                                                                             *
 ******************************************************************************)
 
+external puts : string -> unit = "caml_print_string" [@@noalloc]
 (**
   * Main kernel function.
   *
@@ -36,48 +37,32 @@
 
 let initialized = ref false
 
+let a = ref "mondo"
+
+let test_curry c b =
+  Video.puts c b
+;;
+
+let rec print_infinite n = 
+  puts "inf";
+  print_infinite (n+1)
+;;
+
+open Orc;;
 (* ml kernel entry point *)
-let mlkernel_entry arg =
-  try
-    Console.clear (Console.get_current_console ());
-    Printf.printf "Toplevel parameter is %d\n%!" arg;
-    Printf.printf "Current thread: %d\n%!" (KThread.id (KThread.self ()));
-    (* Don't rescan the PCI list since it would
-     * forget all previously acquired devices. *)
-    if not !initialized then
-      (
-        (* Serial.echo_kprintf 0; *)
-        Console.serial_console 0;
-        Memory.init ();
-        Cpu.check_model ();
-        Irq.init ();
-        Floppy.init ();
-        Pci.scan ();
-        (* Ide.scan (); *)
-        Ne2k.init ();
-	Cirrusfb.init();
-        Keyboard.init ();
-        Mouse.init ();
-	Ramfs.init ();
-        initialized := true
-      );
-    Printf.printf "\n%!";
-    Printf.printf "Funk 0.1.0 : caml est dans le jazz\n\n%!";
+let mlkernel_entry () = 
+  let orc = Orc.init () in
+  orc <<| (module Video.Kvideo);
 
-    let context = {
-      Funk.uid = 0;
-      Funk.gid = 0;
-      Funk.wd = "/";
-      Funk.wd_handle = Vfs.init "ramfs";
-      Funk.umask = Vfs_defs.s_IWGRP lor Vfs_defs.s_IWOTH
-    }
-    in
-      Filecmds.start_dmesg_file_logging context;
-      Shell.toplevel context arg
-  with
-    | e ->
-        Funk.kprintf "mlkernel" "Uncatched exception: %s\nI'm dying now...\n%!" (Printexc.to_string e);
-        exit 0
+  
+  let c = Video.init () in
+  let c = Video.clear c in
+  let c = Video.puts c "ciao" in
+  let c = Video.puts c !a in
+  let cur = test_curry c in
+  let c = cur "ciao" in 
+  (* print_infinite 0; *)
+  ()
+;;
 
-(* export the kernel entry function to C *)
-let _ = Callback.register "mlkernel_entry" mlkernel_entry
+mlkernel_entry ();

@@ -25,7 +25,7 @@
 VERSION	=	$(shell cat ../VERSION)
 SRC	=	../src
 KV	=	funk-x86_64-$(VERSION)
-KERNEL	=	$(SRC)/kernel-clean/$(KV)
+KERNEL	=	$(SRC)/kernel/$(KV)
 # IMG	=	funk.img
 IMG = funk.iso
 BASEIMG =	base.img.gz
@@ -76,7 +76,7 @@ updateimg: $(IMG)
 
 #$(BASEIMG)
 $(IMG): $(KERNEL) 
-	cp ../src/kernel-clean/$(KV) ./disk/boot/funk
+	cp ../src/kernel/$(KV) ./disk/boot/funk
 	genisoimage -R -b stage2_eltorito -no-emul-boot \
 		-boot-load-size 4 -A os -input-charset utf8 -quiet -boot-info-table -o ./$@ ./disk/
 

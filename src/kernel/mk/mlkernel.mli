@@ -29,4 +29,4 @@
   **)
 
 (** Funk kernel entry point. *)
-val mlkernel_entry : int -> unit
+val mlkernel_entry : unit -> unit

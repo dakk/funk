@@ -34,7 +34,6 @@
 
 #include "output.h"
 #include "libc-dummy.h"
-#include "asm-utils.h"
 
 /* screen-related definitions */
 #define VIDEO_COLS   80
@@ -44,7 +43,8 @@
 
 /* current screen position variables */
 static int x_pos = 0;
-static int y_pos = 10; 
+static int y_pos = 0; 
+
 
 /* void clear_screen()
 {
@@ -73,8 +73,16 @@ void c_print_char(unsigned char c)
   x_pos++;
 }
 
+static int c = 0;
+
 void c_print_string(const char *s)
 {
+  // We print a char before the string so we can 
+  // recognize last output
+  c_print_char((char) (c % ('z' - 'a')) + 'a');
+  c++;
+  c_print_char(' ');
+
   const unsigned char *us = (const unsigned char *) s;
   /*int fd = open ("vga.log",01|02000);*/
   /*x_pos = 0;*/
@@ -89,7 +97,7 @@ void c_print_string(const char *s)
 
   x_pos = 0;
   if (++y_pos >= VIDEO_LINES)
-    y_pos = 10;
+    y_pos = 0;
   while (x_pos < VIDEO_COLS)
     c_print_char (' ');
   x_pos = 0;
@@ -97,28 +105,18 @@ void c_print_string(const char *s)
   c_print_char (' ');
 }
 
+void caml_print_string(const char *s) {
+	c_print_string(s);
+}
+
 /* character printing function */
 void print_char(unsigned char c)
 {
-  value *val = caml_named_value("funk_put_char");
-#ifdef DEBUG
-  if (!val) {
-    c_printf("funk_put_char not found !\n");
-    hang();
-  }
-#endif
-  caml_callback(*val, Val_int(c));
+  caml_callback(*caml_named_value("funk_put_char"), Val_int(c));
 }
 
 /* string printing function */
 void print_string(const char *s)
 {
-  value *val = caml_named_value("funk_print_string");
-#ifdef DEBUG
-  if (!val) {
-    c_printf("funk_put_string not found !\n");
-    hang();
-  }
-#endif
-  caml_callback(*val, caml_copy_string(s));
+  caml_callback(*caml_named_value("funk_print_string"), caml_copy_string(s));
 }
