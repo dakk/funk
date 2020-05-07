@@ -135,6 +135,29 @@ int system(const char *command)
 
 /* Memory */
 
+
+int memcmp(const void *s1, const void *s2, size_t n)
+{
+#ifdef DEBUG
+  c_printf("memcmp(s,s,%d) called\n",s1,s2,n);
+#endif
+  const char *b1 = s1;
+  const char *b2 = s2;
+  size_t i = 0;
+
+  while (i < n && *b1==*b2) {
+    s1++;
+    s2++;
+  }
+#ifdef DEBUG
+  c_printf ("memcmp done\n");
+#endif
+  if (*b1<*b2) return -1;
+  else if (*b2>*b1) return 1;
+  else return 0;
+}
+
+
 void *memcpy(void *dest, const void *src, size_t n)
 {
 #ifdef DEBUG
@@ -230,15 +253,15 @@ void *malloc(size_t size)
       prv = *(void**) (cur - 3*s);
       nxt = *(void**) (cur - 2*s);
       if (prv)
-	*(void**) (prv - 2*s) = new;
+		*(void**) (prv - 2*s) = new;
       if (nxt)
-	*(void**) (nxt - 3*s) = new;
+		*(void**) (nxt - 3*s) = new;
       *(void**) (new - 3*s) = prv;
       *(void**) (new - 2*s) = nxt;
       *(int*)   (new - s)   = *(int*) (cur - s) - rSize;
       last_seen = nxt;
       if (cur == *(void**)(heap + HEAP_OFFSET))
-	*(void**)(heap + HEAP_OFFSET) = new;
+		*(void**)(heap + HEAP_OFFSET) = new;
       *(int*)(cur - 3*s) = rSize;
 #ifdef DEBUG
     c_printf ("new: %p (prev: %p, next: %p, size: %d)\n", new, *(void**)(new-3*s), *(void**)(new-2*s), *(int*)(new-s));
@@ -917,6 +940,15 @@ double strtod(const char *nptr,char **endptr)
   return HUGE_VAL;
 }
 
+long double strtod_l(const char *nptr, char **endptr, /*locale_t*/ int locale) 
+{ 
+#ifdef DEBUG
+  c_printf("strtod_l(%s,%p) called\n",nptr,endptr);
+#endif
+  errno = ERANGE;
+  return HUGE_VAL;
+}
+
 /* Float */
 int __fpclassify(double x)
 {
@@ -964,6 +996,41 @@ double sqrt(double x)
 double pow(double x, double y)
 {
   return __builtin_pow(x, y);
+}
+
+double fmin(double x, double y) 
+{ 
+	return __builtin_fmin(x, y);
+}
+
+double log1p(double x)
+{ 
+	return __builtin_log1p(x); 
+}
+
+double hypot(double x, double y)
+{ 
+	return __builtin_hypot(x, y);
+}
+
+double expm1(double x)
+{ 
+	return __builtin_expm1(x);
+}
+
+double nextafter(double x, double y)
+{ 
+	return __builtin_nextafter(x, y); 
+}
+
+double round(double x)
+{ 
+	return __builtin_round(x); 
+} 
+
+double fma(double x, double y, double z) 
+{
+	return __builtin_fma(x, y, z);
 }
 
 double sin(double x)
@@ -1247,34 +1314,51 @@ void __stack_chk_fail_local(void) {
 }
 
 
-long __divdi3 (long a, long b) { return a/b; }
-long __moddi3 (long a, long b) { return a%b; }
-long __udivdi3 (long a, long b) { return a/b; }
-long __umoddi3 (long a, long b) { return a%b; }
+// TO BE IMPLEMENTED DECENTLY, SINCE THEY ARE USED BY OCAML RUNTIME
+void abort(void) 
+{
 
-void abort(void) {}
+}
 
 
-double fma(double x, double y, double z) { return x; }
-int memcmp(const void *s1, const void *s2, size_t n) { 
-	c_printf("memcmp");return 0; }
-int munmap(void *addr, size_t len) { 
-	c_printf("munmap");return 0; }
+int munmap(void *addr, size_t len) 
+{ 
+	c_printf("munmap");
+	return 0; 
+}
+
 void *mmap64(void *addr, size_t length, int prot, int flags,
-                  int fd, off_t offset) { 
-	c_printf("mmap64");return NULL; }
-int sigismember(const void *set, int signo) { return 0; }
-double fmin(double x, double y) { return 0.0; }
-double log1p(double x){ return 0.0; }
-double hypot(double x, double y){ return 0.0; }
-double expm1(double x){ return 0.0; }
-double nextafter(double x, double y){ return 0.0; }
-double round(double x){ return 0.0; } 
-void uselocale() {}
-int isatty(int fd) { return 0; }
-void newlocale() {}
-void freelocale() {}
-long double strtod_l(const char *nptr, char **endptr, /*locale_t*/ int locale) { return 0.0; }
+                  int fd, off_t offset) 
+{ 
+	c_printf("mmap64");
+	return NULL; 
+}
+
+int sigismember(const void *set, int signo) 
+{ 
+	return 0; 
+}
+
+int isatty(int fd) 
+{ 
+	return 0; 
+}
+
+void uselocale() 
+{
+
+}
+
+void newlocale() 
+{
+
+}
+
+void freelocale() 
+{
+
+}
+
 
 char *secure_getenv(const char *name) {
 	return getenv(name);

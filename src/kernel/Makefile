@@ -35,13 +35,12 @@ KERNEL  = funk-$(ARCH)-$(VERSION)
 CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
 CAMLBIN = /home/dakk/.opam/4.09.1+32bit/bin
 # OCAMLPACKAGES	= "str extlib"
-OCAMLPACKAGES	= "/home/dakk/.opam/4.09.1+32bit/lib/ocaml/str.a"
+OCAMLPACKAGES	= "/home/$(shell whoami)/.opam/4.09.1+32bit/lib/ocaml/str.a"
 
 # commands definitions
 #####################
 
-CC       = gcc
-CFLAGS  += -m32 -std=c99 -Wall -Os -fomit-frame-pointer -g
+CFLAGS  += $(CCFLAGS) -std=c99 -Wall -Os -fomit-frame-pointer -g
 CPPFLAGS += -DCAML_NAME_SPACE -Irun/$(ARCH) -I$(CAMLLIB) -Irun/include
 OCAMLINCDIRS = -I mk -I mk/dirt -I mk/mm -I mk/ipc -I mk/proc -I mk/perms \
 	       -I ../servers -I ../userland -I ../drivers
@@ -52,9 +51,6 @@ OCAMLYACC = $(CAMLBIN)/ocamlyacc
 OCAMLDEP = $(CAMLBIN)/ocamldep -native $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
 OCAMLDOC = $(CAMLBIN)/ocamldoc $(OCAMLFINDPARAMS) $(OCAMLINCDIRS)
 OCAMLFLAGS_../drivers/console.cmx = -unsafe
-LD       = ld
-# LDFLAGS  = -s
-LDFLAGS	 = 
 
 ifeq ($(findstring debug, $(MAKECMDGOALS)),debug)
 	CPPFLAGS   += -DDEBUG

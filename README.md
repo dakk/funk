@@ -23,8 +23,9 @@ and immutability, stay tuned.
 
 1. ~~Automatic cross compiler creation for x86~~
 2. ~~Restore building of kernel-clean (i386) with latest OCaml version~~
-3. Restore building of kernel (i386 / i686)
-4. Complete x86_64 implementation
+3. Create missing function for ocaml runtime and make the kernel-clean runnable
+4. Restore building of kernel (i386 / i686)
+5. Complete x86_64 implementation
 
 ## Current status
 
@@ -46,12 +47,16 @@ To compile the kernel you will need:
 - OCaml 4.09.1
 - crosstool-ng
 
+
 ## Creating the cross-compiler
 
 If you are running an x86_64 system (off course you are), you should first 
 build the cross-compiler using crosstool-ng: ```make build-ct```; it takes 
 some time, but unless we port the kernel to 64bit, this is the only method 
 to build.
+
+And finally, you need to install a 32bit version of ocaml: 
+```opam switch create 4.09.1+32bit```.
 
 
 ## Building and testing

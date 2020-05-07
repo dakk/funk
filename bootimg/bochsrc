@@ -1,4 +1,4 @@
-megs:            512
+megs:            64
 config_interface: textconfig
 display_library: x
 romimage:        file=/usr/share/bochs/BIOS-bochs-latest
