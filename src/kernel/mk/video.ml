@@ -8,7 +8,6 @@ let _VCOL = 80;;
 let _VLINE = 25;;
 let _VMEM = 0xB8000;;
 
-(* let name = "Vid";; *)
 
 let init () = {
   x= 0;
@@ -47,10 +46,19 @@ let puts vt s =
   in ite vt 0
 ;;
 
+let kputs s x y = puts ({ (init ()) with x=x; y=y }) s |> ignore;;
 
-module Kvideo: Orc.Ktask = struct
+
+let eputs s = ("video", "puts", [Ktask.String (s)]);;
+
+module Kvideo: Ktask.Ktask = struct
   type s = t;;
   let name = "video";;
 
   let create = init;;
+
+  let handle vt ev = kputs "error" 0 10; let vt = init() in match ev with 
+  | "puts", Ktask.String(s)::[] -> let vt' = puts vt s in (vt', [])
+  | _, _ -> kputs "error" 0 12; (vt, [])
+  ;;
 end

@@ -1,15 +1,7 @@
 type t
-type kevent
-
-module type Ktask = sig
-  type s
-  val name: string
-  val create : unit -> s
-end
 
 val init: unit -> t
-val loop: t -> unit
+val loop_step: t -> t
 
-val (<<|): t -> (module Ktask) -> t
-val (<<): t -> kevent -> t
-val (>>): t -> kevent option
+val (<<|): t -> (module Ktask.Ktask) -> t
+val (<<): t -> Ktask.kevent -> t

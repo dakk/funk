@@ -29,7 +29,7 @@ STUBS_O	= $(STUBS_C:.c=.o)
 
 OCAMLKERNEL = ocamlmkkernel.o
 
-CMX = mm/memory.cmx mm/mm.cmx orc.cmx video.cmx mlkernel.cmx 
+CMX = mm/memory.cmx mm/mm.cmx ktask.cmx video.cmx orc.cmx mlkernel.cmx 
 
 %.o: %.c
 	@echo $(CC) $(CFLAGS) -c -o $@

@@ -35,17 +35,16 @@
 /*#include "threads.h"*/
 #include "asm-utils.h"
 #include "kernel.h"
-#include <caml/mlvalues.h>
 
 extern void setup_kernel();
 extern void setup_memory(void *start, void *end);
 
-static value mlkernel_arg = Val_int(0);
 
 /* macro used to check the flags in mbi struct */
 #define CHECK_FLAG(flags, bit) ((flags) & (1 << (bit)))
 
 unsigned long mem_size;
+typedef unsigned int uintnat;
 
 extern uintnat caml_init_percent_free;
 extern uintnat caml_init_max_percent_free;
@@ -65,9 +64,8 @@ extern int caml_startup_aux(int);
  * the original version tries to open the binary file and read the content;
  * we avoid this by calling the ocaml main function manually
  */
-value caml_startup_funk(char **argv)
+void caml_startup_funk()
 {
-	char_os *exe_name, *proc_self_exe;
 	char tos;
 
 	//   c_printf("caml_init_domain");
@@ -78,7 +76,7 @@ value caml_startup_funk(char **argv)
 	//   CAML_EVENTLOG_INIT();
 	c_printf("caml_startup_aux()");
 	if (!caml_startup_aux(0))
-		return Val_unit;
+		return;
 
 	c_printf("caml_init_frame_descriptors()");
 	caml_init_frame_descriptors();
@@ -112,7 +110,6 @@ void kernel_entry(unsigned long magic, unsigned long addr)
 	memory_map_t *mmap;
 	unsigned long mmap_size;
 	unsigned long block_size = 1 << 20; /* assume at least 1MB upper memory */
-	static char *argv[] = {"ocaml", NULL};
 
 	/* check the multiboot-compliant magic number */
 	if (magic != MULTIBOOT_BOOTLOADER_MAGIC)
@@ -162,7 +159,7 @@ void kernel_entry(unsigned long magic, unsigned long addr)
 
 	/* then call the caml startup function */
 	c_printf("caml_startup_funk()");
-	caml_startup_funk(argv);
+	caml_startup_funk();
 
 	/* initialize threads */
 	//thread_init();

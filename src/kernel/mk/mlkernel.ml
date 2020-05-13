@@ -34,34 +34,22 @@ external puts : string -> unit = "caml_print_string" [@@noalloc]
  * kernel, which is called by the kernel entry function defined in the
  * kernel.c source file.
  *)
-
-let initialized = ref false
-
-let a = ref "mondo"
-
-let test_curry c b =
-  Video.puts c b
-;;
-
-let rec print_infinite n = 
-  puts "inf";
-  print_infinite (n+1)
-;;
-
 open Orc;;
+
+
 (* ml kernel entry point *)
 let mlkernel_entry () = 
+  Video.kputs "kernel" 0 0;
   let orc = Orc.init () in
-  orc <<| (module Video.Kvideo);
+  let orc = orc <<| (module Video.Kvideo) in
 
-  
-  let c = Video.init () in
-  let c = Video.clear c in
-  let c = Video.puts c "ciao" in
-  let c = Video.puts c !a in
-  let cur = test_curry c in
-  let c = cur "ciao" in 
-  (* print_infinite 0; *)
+  let orc = orc << Video.eputs "ciao" in
+  (* let orc = orc << Video.eputs "ciao" in *)
+  (* let orc = orc << Video.eputs "ciao" in *)
+  (* let orc = Orc.loop_step orc in *)
+  (* let _ = Video.kputs "step1" in *)
+  let orc = Orc.loop_step orc in
+  (* Video.kputs "step2"; *)
   ()
 ;;
 
