@@ -134,8 +134,8 @@ let get_device_info ctrl master dev_type =
     let log_cyl = (buf.(2) lsl 16) + buf.(3) in
     let log_heads = (buf.(6) lsl 16) + buf.(7) in
     let log_sect = (buf.(12) lsl 16) + buf.(13) in
-    let sn = String.make 20 ' ' in
-    let mn = String.make 40 ' ' in
+    let sn = Bytes.make 20 ' ' in
+    let mn = Bytes.make 40 ' ' in
       for i = 20 to 39
       do
         sn.[i - 20] <- char_of_int (buf.(i));
@@ -149,8 +149,8 @@ let get_device_info ctrl master dev_type =
         log_heads = log_heads;
         log_sect = log_sect;
         blk_size = 512;
-        serial_nb = sn;
-        model_nb = mn;
+        serial_nb = Bytes.to_string sn;
+        model_nb = Bytes.to_string mn;
         (* TODO: handle LBA *)
         nb_blk = log_cyl * log_heads * log_sect
       }

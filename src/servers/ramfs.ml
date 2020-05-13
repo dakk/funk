@@ -106,7 +106,7 @@ and ramfs_mount () =
   and root_inode = {
     common = common;
     data = Dir {
-      children = DynArray.create ();
+      children = [||];
     }
   }
   and root_dentry = {

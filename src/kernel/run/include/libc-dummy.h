@@ -25,7 +25,7 @@
 #ifndef __LIBC_DUMMY_H
 #define __LIBC_DUMMY_H
 #include <stddef.h>
-#include <sys/types.h>
+#include <stdlib.h>
 typedef void FILE;
 #define LONG_MIN (-2147483648UL)
 #define HUGE_VAL (__extension__ 0x1.0p2047)
@@ -41,6 +41,8 @@ typedef void FILE;
 
 #define time_t int
 #define suseconds_t int
+typedef unsigned int off_t;
+typedef size_t ssize_t;
 
 struct timeval {
   time_t         tv_sec;   /* seconds */

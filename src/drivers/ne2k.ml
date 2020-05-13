@@ -386,7 +386,7 @@ let block_input () =
               kprintf "Bogus packet.\n%!";
               raise Invalid_packet
             );
-          ans := ne2k_block_input pkt_len (current_offset + e8390_pkt_hdr_len);
+          ans := Bytes.to_string @@ ne2k_block_input pkt_len (current_offset + e8390_pkt_hdr_len);
           Funk.outb_p (dev.base_addr + en0_BOUNDARY) (hdr.next - 1);
           (* We used to also ack ENISR_OVER here, but that would sometimes mask
            * a real overrun, leaving the 8390 in a stopped state with rec'vr off. *)

@@ -19,7 +19,7 @@
 #include <caml/memory.h>
 #include <caml/fail.h>
 
-void caml_fatal_error(char* s);
+CAMLextern void caml_fatal_error (char *, ...);
 
 /* The backtracking NFA interpreter */
 

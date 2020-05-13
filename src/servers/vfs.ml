@@ -23,7 +23,6 @@
 * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. *
 *                                                                             *
 ******************************************************************************)
-
 (**
   * Virtual File-system.
   *
@@ -31,6 +30,17 @@
   **)
 
 open Vfs_defs
+
+
+(* Array indexof *)
+let array_index_of f l = 
+	let len = Array.length l in
+	let rec ite_search i = 
+		if len >= i then raise Not_found 
+		else if f @@ Array.get l i then i 
+		else ite_search (i+1) in
+	ite_search 0
+;;
 
 (* Internal exceptions (used during lookup) *)
 
@@ -97,7 +107,7 @@ let has_exec_access dentry uid gid =
 
 (* Directory contents and size *)
 
-let get_dir_dentry dir_data index = DynArray.get dir_data.children index
+let get_dir_dentry dir_data index = Array.get dir_data.children index
 
 let add_to_directory_size common len =
   common.size <- common.size + len
@@ -140,7 +150,7 @@ let lookup_dentry parent_dentry name uid gid =
 	    | Some parent -> parent, -1
 	else
 	  try
-	    let i = DynArray.index_of (compare_dentry_name name) x.children
+	    let i = array_index_of (compare_dentry_name name) x.children
 	    in let dentry = get_dir_dentry x i
 	    in (get_mounted_dentry dentry, i)
 	  with
@@ -286,14 +296,14 @@ let create_inode_common_data mntpnt mode uid gid size =
 let create_empty_dir mntpnt mode uid gid = {
   common = create_inode_common_data mntpnt mode uid gid 0;
   data = Dir {
-    children = DynArray.create ();
+    children = [||]; 
   }
 }
 
 let create_file mntpnt mode uid gid = {
   common = create_inode_common_data mntpnt mode uid gid 0;
   data = File {
-    blocks = DynArray.create ();
+    blocks = [||];
   }
 }
 
@@ -317,7 +327,7 @@ let add_dentry_to_parent name inode parent_dentry =
 	    mounted = None;
 	  }
 	in
-	  DynArray.add x.children dentry;
+	  x.children = Array.append x.children [||];
 	  dentry
       end
     | _ -> raise (Dentry_not_a_directory parent_dentry)
@@ -325,7 +335,7 @@ let add_dentry_to_parent name inode parent_dentry =
 (* Unlinking dentries *)
 
 let remove_from_parent_data data i =
-  DynArray.delete data.children i
+  (* Array.delete data.children i *) ()
 
 let remove_from_parent parent_dentry i =
   match parent_dentry.inode.data with
@@ -337,32 +347,32 @@ let remove_from_parent parent_dentry i =
 let new_empty_block size =
   String.make size '\000'
 
-let setup_file_blocks file length =
-  let blksize = file.file_common.mntpnt.blksize
+let setup_file_blocks file length = ()
+  (* let blksize = file.file_common.mntpnt.blksize
   in let data = file.file_data
   in let new_nblocks = (length + blksize - 1)/blksize
-  in let old_nblocks = DynArray.length data.blocks
+  in let old_nblocks = Array.length data.blocks
   in
     if new_nblocks <= 0 then
-      DynArray.clear data.blocks
+      Array.clear data.blocks
     else if new_nblocks > old_nblocks then
       begin
 	(* add last blocks, but do not allocate them *)
-	let new_blocks = DynArray.init (new_nblocks - old_nblocks) (fun x -> None)
-	in DynArray.append new_blocks data.blocks
+	let new_blocks = Array.init (new_nblocks - old_nblocks) (fun x -> None)
+	in Array.append new_blocks data.blocks
       end
     else
       begin
 	(* delete last blocks *)
-	DynArray.delete_range data.blocks new_nblocks (old_nblocks - new_nblocks);
+	Array.delete_range data.blocks new_nblocks (old_nblocks - new_nblocks);
 	(* put 0's in the end of the last remaining block if it's been allocated *)
-	match DynArray.get data.blocks (new_nblocks-1) with
+	match Array.get data.blocks (new_nblocks-1) with
 	  | None -> ()
 	  | Some x ->
 	      let offset = length mod blksize in
 		if offset > 0 then
 		  String.fill x offset (blksize - offset) '\000'
-      end
+      end *)
 
 (***********************)
 (* High level routines *)
@@ -408,7 +418,7 @@ let rmdir uid gid root path =
 	  | Dir y ->
 	      if i < 0 then raise (EINVAL (EINVAL_Path path))
 	      else begin
-		if DynArray.length y.children > 0 then
+		if Array.length y.children > 0 then
 		  raise (ENOTEMPTY path);
 		parent.inode.common.nlink <- parent.inode.common.nlink - 1;
 		remove_from_parent_data x i;
@@ -669,7 +679,7 @@ let read_file file length =
     then blksize - offset_in_block
     else length
   in let bytes =
-      match DynArray.get data.blocks block with
+      match Array.get data.blocks block with
 	| None -> new_empty_block real_length
 	| Some x -> String.sub x offset_in_block real_length
   in
@@ -693,13 +703,13 @@ let write_file file bytes length =
     in
       setup_file_blocks file (file.file_seek + real_length);
       begin
-      match (DynArray.get data.blocks block) with
-	| Some x -> String.blit bytes 0 x offset_in_block real_length
+      match (Array.get data.blocks block) with
+	| Some x -> String.blit bytes 0 (Bytes.of_string x) offset_in_block real_length
 	| None -> (* time to allocate this block *)
 	    let new_block = new_empty_block blksize
 	    in
-	      String.blit bytes 0 new_block offset_in_block real_length;
-	      DynArray.set data.blocks block (Some new_block)
+	      String.blit bytes 0 (Bytes.of_string new_block) offset_in_block real_length;
+	      Array.set data.blocks block (Some new_block)
       end;
       notify_write_access file.file_common (current_time ());
       file.file_seek <- file.file_seek + real_length;
@@ -753,8 +763,8 @@ let read_dir dir =
 	dir.dir_seek <- dir.dir_seek + 1;
 	notify_read_access dir.dir_common (current_time ());
 	name
-  with
-      DynArray.Invalid_arg(_,_,_) -> ""
+  with _ -> ""
+      (* Array.Invalid_arg(_,_,_) -> "" *)
 
 (* CWD *)
 

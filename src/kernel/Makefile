@@ -29,9 +29,9 @@
 # general definitions
 #####################
 
-ARCH    = $(shell uname -m)
-VERSION = $(shell cat ../../VERSION)
-KERNEL  = funk-$(ARCH)-$(VERSION)
+ARCH    =i386
+#$(shell uname -m)
+KERNEL  =funk-$(ARCH)-0.1
 CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
 CAMLBIN = /home/dakk/.opam/4.09.1+32bit/bin
 # OCAMLPACKAGES	= "str extlib"
@@ -76,6 +76,7 @@ MK_C	 = $(wildcard mk/*.c mk/mm/*.c ../drivers/*.c)
 MK_OBJS	 = $(MK_C:.c=.o)
 OBJS	 = $(MAIN_RUN_OBJS) $(ARCH_RUN_OBJS) $(MK_OBJS)
 
+
 DRIVERS_PREFIX = ../drivers/
 DRIVERS_FILES  = mouse.ml cpu.ml dma.ml pci.ml ne2k.ml cirrusfb.ml ide.ml \
 		 floppy.ml inputmap_fr_latin1.ml keyboard.ml serial.ml console.ml \
@@ -114,11 +115,15 @@ $(KERNEL): $(LIBOCAML) $(OBJS) $(LINK_SCRIPT)
               -T $(LINK_SCRIPT)
 
 $(OCAMLKERNEL): $(CMX)
-	$(OCAMLOPT) -linkpkg $(CMXA) $(CMX) -output-obj -o $@
+	$(OCAMLOPT) $(CMXA) $(CMX) -output-obj -o $@
+	#-linkpkg
 
 $(LIBOCAML): $(CMX) $(OCAMLWRAPPER) $(OCAMLKERNEL)
 	cp $(CAMLLIB)/libasmrun.a $@
 	ar r $@ $(OCAMLWRAPPER) $(OCAMLKERNEL)
+
+%.o: %.S
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 %.cmi: %.mli
 	$(OCAMLOPT) -c $< $(OCAMLFLAGS_$@) -o $@

@@ -58,7 +58,7 @@ exception Wrong_arg_nb
 let () =
   Hashtbl.add cmds "beep" (fun ctx -> function freq::duration::_ -> Sound.beep (int_of_string freq) (int_of_string duration) | _ -> raise Wrong_arg_nb);
   Hashtbl.add cmds "clear" (fun ctx _ -> Console.clear (Console.get_current_console()));
-  Hashtbl.add cmds "dmesg" (fun ctx _ -> Printf.printf "%s%!" (Filecmds.cat_from_file ctx "/dmesg"));
+  Hashtbl.add cmds "dmesg" (fun ctx _ -> Printf.printf "%s%!" @@ Bytes.to_string (Filecmds.cat_from_file ctx "/dmesg"));
   Hashtbl.add cmds "date" (fun ctx _ -> Printf.printf "%d brouzoufs elapsed since boot.\n%!" (Funk.gettimeofday ()));
   Hashtbl.add cmds "exception" (fun ctx -> function e::_ -> raise (Invalid_argument e) | _ -> raise Wrong_arg_nb);
   Hashtbl.add cmds "exit" (fun ctx _ -> KThread.exit ());
@@ -135,7 +135,7 @@ let () =
      (fun ctx -> function
         | ">"::path::data::_ -> Filecmds.cat_to_file ctx path data
         | ">>"::path::data::_ -> Filecmds.append_to_file ctx path data
-        | path::_ -> Printf.printf "%s%!" (Filecmds.cat_from_file ctx path)
+        | path::_ -> Printf.printf "%s%!"  @@ Bytes.to_string (Filecmds.cat_from_file ctx path)
         | _ -> raise Wrong_arg_nb);
   Hashtbl.add cmds "head" (fun ctx -> function num::path::_ -> Filecmds.head ctx (int_of_string num) path | _ -> raise Wrong_arg_nb);
   Hashtbl.add cmds "tail" (fun ctx -> function num::path::_ -> Filecmds.tail ctx (int_of_string num) path | _ -> raise Wrong_arg_nb);

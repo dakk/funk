@@ -603,7 +603,7 @@ let parse_model ebx0 ecx0 edx0 eax1 ebx1 =
     int32_in_string ebx0 vendor_string 0;
     int32_in_string edx0 vendor_string 4;
     int32_in_string ecx0 vendor_string 8;
-    vendor_string, vendor_of_string vendor_string, stepping, model, family, proc_type, ext_model, ext_family, brand
+    vendor_string, vendor_of_string @@ Bytes.to_string vendor_string, stepping, model, family, proc_type, ext_model, ext_family, brand
 
 let check_model () =
   let eax0, ebx0, ecx0, edx0 = Funk.cpuid Int32.zero in
@@ -611,14 +611,14 @@ let check_model () =
   let eax1, ebx1, ecx1, edx1 = Funk.cpuid Int32.one in
     (* signature, brand, msr, features *)
   let vendor_string, vendor, stepping, model, family, proc_type, ext_model, ext_family, brand = parse_model ebx0 ecx0 edx0 eax1 ebx1 in
-    Funk.kprintf "CPU" "Vendor: %s, name: %s\n" vendor_string (string_of_signature vendor family ext_family model stepping brand);
+    Funk.kprintf "CPU" "Vendor: %s, name: %s\n" (Bytes.to_string vendor_string) (string_of_signature vendor family ext_family model stepping brand);
     Funk.kprintf "CPU" "Stepping: %d, type: %d, family: %d.%d model: %d.%d\n" stepping proc_type family ext_family model ext_model;
     Funk.kprintf "CPU" "Frequency %d MHz\n" (int_of_float (get_freq ())); (* TODO: %f is not working *)
     Funk.kprintf "CPU" "Features: %s\n" (string_of_features edx1);
     Funk.kprintf "CPU" "Physical ID: %d\n" (physical_id ebx1);
     proc :=
       Some {
-        vendor_name = vendor_string;
+        vendor_name = Bytes.to_string vendor_string;
         vendor = vendor;
         features = ebx1;
         stepping = stepping;

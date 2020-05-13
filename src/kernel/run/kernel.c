@@ -49,6 +49,69 @@ static value mlkernel_arg = Val_int(0);
 
 unsigned long mem_size;
 
+
+extern uintnat caml_init_percent_free;
+extern uintnat caml_init_max_percent_free;
+extern uintnat caml_init_minor_heap_wsz;
+extern uintnat caml_init_heap_chunk_sz;
+extern uintnat caml_init_heap_wsz;
+extern uintnat caml_init_max_stack_wsz;
+extern uintnat caml_init_major_window;
+extern uintnat caml_init_custom_major_ratio;
+extern uintnat caml_init_custom_minor_ratio;
+extern uintnat caml_init_custom_minor_max_bsz;
+extern uintnat caml_trace_level;
+extern int caml_startup_aux(int);
+
+/* caml_startup rewrite
+ *
+ * the original version tries to open the binary file and read the content;
+ * we avoid this by calling the ocaml main function manually
+ */
+value caml_startup_funk(char **argv)
+{
+  char_os * exe_name, * proc_self_exe;
+  char tos;
+
+//   c_printf("caml_init_domain");
+//   caml_init_domain();
+  c_printf("caml_parse_ocamlrunparam()");
+  caml_parse_ocamlrunparam();
+//   c_printf("CAML_EVENTLOG_INIT");
+//   CAML_EVENTLOG_INIT();
+  c_printf("caml_startup_aux()");
+  if (!caml_startup_aux(0))
+    return Val_unit;
+
+#ifdef WITH_SPACETIME
+  c_printf("caml_spacetime_initialize()");
+  caml_spacetime_initialize();
+#endif
+  c_printf("caml_init_frame_descriptors()");
+  caml_init_frame_descriptors();
+  c_printf("caml_init_locale()");
+  caml_init_locale();
+#if defined(_MSC_VER) && __STDC_SECURE_LIB__ >= 200411L
+  caml_install_invalid_parameter_handler();
+#endif
+  c_printf("caml_init_custom_operations()");
+  caml_init_custom_operations();
+  //   Caml_state->top_of_stack = &tos;
+  c_printf("caml_init_gc()");
+  caml_init_gc (caml_init_minor_heap_wsz, caml_init_heap_wsz,
+                caml_init_heap_chunk_sz, caml_init_percent_free,
+                caml_init_max_percent_free, caml_init_major_window,
+                caml_init_custom_major_ratio, caml_init_custom_minor_ratio,
+                caml_init_custom_minor_max_bsz);
+  //   init_static();
+  c_printf("caml_init_signals");
+  caml_init_signals();
+  c_printf("caml_init_backtrace");
+  caml_init_backtrace();
+  c_printf("caml_debugger_init");
+  caml_debugger_init ();
+}
+
 /* kernel entry point function, called from assembler code */
 void kernel_entry(unsigned long magic,unsigned long addr)
 {
@@ -96,7 +159,9 @@ void kernel_entry(unsigned long magic,unsigned long addr)
   /* We also setup the memory */
   setup_memory(heap + HEAP_OFFSET, heaplimit);
   /* then call the caml startup function */
-  caml_startup(argv);
+//   caml_startup(argv);
+  c_printf("caml_startup_funk()");
+  caml_startup_funk(argv);
   /* initialize threads */
   thread_init();
   /* start the ml kernel... */

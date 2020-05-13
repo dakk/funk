@@ -175,15 +175,15 @@ let lines ctx begin_num end_num path =
     ignore (File.read file length data 0);
     while !lines < end_num && !loop do
       try
-	let endl = String.index_from data !index '\n'
+	let endl = Bytes.index_from data !index '\n'
 	in
 	  lines := !lines + 1;
-	  if !lines >= begin_num then Printf.printf "%s%!" (String.sub data !index (endl - !index + 1));
+	  if !lines >= begin_num then Printf.printf "%s%!" @@ Bytes.to_string (Bytes.sub data !index (endl - !index + 1));
 	  index := endl + 1;
       with
 	  Not_found ->
 	    lines := !lines + 1;
-	    if !lines >= begin_num then Printf.printf "%s%!" (String.sub data !index (String.length data - !index));
+	    if !lines >= begin_num then Printf.printf "%s%!" @@ Bytes.to_string (Bytes.sub data !index (Bytes.length data - !index));
 	    loop := false
     done
 
@@ -203,14 +203,14 @@ let tail ctx num path =
     if !index < length-1 then incr lines;
     while !lines < num && !loop do
       try
-	index := String.rindex_from data (!index - 1) '\n';
+	index := Bytes.rindex_from data (!index - 1) '\n';
 	incr lines
       with
 	  Not_found ->
 	    index := -1;
 	    loop := false
     done;
-    Printf.printf "%s%!" (String.sub data (!index + 1) (length - !index - 1))
+    Printf.printf "%s%!" @@ Bytes.to_string (Bytes.sub data (!index + 1) (length - !index - 1))
 
 let wc ctx path =
   let file = File.open_file ctx path [Vfs_defs.O_RDONLY] None
@@ -223,8 +223,8 @@ let wc ctx path =
   in
     chars := File.read file !chars data 0;
     for i = 0 to !chars - 1 do
-      if String.get data i = '\n' && i < (String.length data) - 1 then lines := !lines + 1;
-      if String.get data i = ' '
+      if Bytes.get data i = '\n' && i < (Bytes.length data) - 1 then lines := !lines + 1;
+      if Bytes.get data i = ' '
       then new_word := false
       else if !new_word = false then
 	begin

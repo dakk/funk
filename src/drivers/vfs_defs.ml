@@ -137,11 +137,11 @@ type symlink_data = {
 type file_block = data option
 
 type file_data = {
-  blocks : file_block DynArray.t;
+  blocks : file_block Array.t;
 }
 
 type dir_data = {
-  children : dentry DynArray.t;
+  children : dentry Array.t;
 }
 
 and specific_data =

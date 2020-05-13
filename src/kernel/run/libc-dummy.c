@@ -1054,7 +1054,7 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
 #ifdef DEBUG
   /*c_printf("gettimeofday(%p,%p) called\n",tv,tz);*/
 #endif
-  /* le temps est grossier: on a des machines à 1GHz en gros, on va dire */
+  /* le temps est grossier: on a des machines ï¿½ 1GHz en gros, on va dire */
   tick_t tick;
 
   if (!tv) return notImpl_int();
@@ -1089,7 +1089,7 @@ clock_t times(struct tms *buf)
 #ifdef DEBUG
   c_printf("times(%p) called\n",buf);
 #endif
-  /* De même, on va dire que les ticks sont à 1KHz, en supposant une horloge à 1GHz */
+  /* De mï¿½me, on va dire que les ticks sont ï¿½ 1KHz, en supposant une horloge ï¿½ 1GHz */
   tick_t tick;
   ticks(tick);
   buf->tms_stime = 0;
@@ -1217,4 +1217,162 @@ static const unsigned short int *__ctype_b =
 const unsigned short int **__ctype_b_loc(void)
 {
   return &__ctype_b;
+}
+
+
+
+
+
+void __stack_chk_fail(void) {
+	c_printf("stack fail");
+}
+void __stack_chk_fail_local(void) {
+	c_printf("stack fail local");
+}
+
+
+// TO BE IMPLEMENTED DECENTLY, SINCE THEY ARE USED BY OCAML RUNTIME
+void abort(void) 
+{
+
+}
+
+
+int munmap(void *addr, size_t len) 
+{ 
+	c_printf("munmap");
+	return 0; 
+}
+
+void *mmap64(void *addr, size_t length, int prot, int flags,
+                  int fd, off_t offset) 
+{ 
+	c_printf("mmap64");
+	return NULL; 
+}
+
+int sigismember(const void *set, int signo) 
+{ 
+	return 0; 
+}
+
+int isatty(int fd) 
+{ 
+	return 0; 
+}
+
+void uselocale() 
+{
+
+}
+
+void newlocale() 
+{
+
+}
+
+void freelocale() 
+{
+
+}
+
+
+char *secure_getenv(const char *name) {
+	return getenv(name);
+}
+
+int ioctl(int fd, unsigned long request, ...) {
+	c_printf("ioctl");
+	return 0;
+}
+
+
+
+/* Trigo */
+double fmin(double x, double y) 
+{ 
+	return __builtin_fmin(x, y);
+}
+
+double log1p(double x)
+{ 
+	return __builtin_log1p(x); 
+}
+
+double hypot(double x, double y)
+{ 
+	return __builtin_hypot(x, y);
+}
+
+double expm1(double x)
+{ 
+	return __builtin_expm1(x);
+}
+
+double nextafter(double x, double y)
+{ 
+	return __builtin_nextafter(x, y); 
+}
+
+double round(double x)
+{ 
+	return __builtin_round(x); 
+} 
+
+double fma(double x, double y, double z) 
+{
+	return __builtin_fma(x, y, z);
+}
+
+
+
+int vfprintf(FILE *stream, const char *format, ...)
+{
+#ifdef DEBUG
+  c_printf("vfprintf(%p,%s) called\n",stream,format);
+#endif
+  if (stream != stdin && stream != stdout && stream != stderr)
+    return notImpl_int();
+  else {
+    va_list args;
+    int i;
+    va_start(args,format);
+    i = vsnprintf(buf,sizeof(buf),format,args);
+    va_end(args);
+    print_string(buf);
+    return i;
+  }
+}
+
+
+long double strtod_l(const char *nptr, char **endptr, /*locale_t*/ int locale) 
+{ 
+#ifdef DEBUG
+  c_printf("strtod_l(%s,%p) called\n",nptr,endptr);
+#endif
+  errno = ERANGE;
+  return HUGE_VAL;
+}
+
+
+
+int memcmp(const void *s1, const void *s2, size_t n)
+{
+#ifdef DEBUG
+  c_printf("memcmp(s,s,%d) called\n",s1,s2,n);
+#endif
+  const char *b1 = s1;
+  const char *b2 = s2;
+  size_t i = 0;
+
+  while (i < n && *b1==*b2) {
+    s1++;
+    s2++;
+  }
+#ifdef DEBUG
+  c_printf ("memcmp done\n");
+#endif
+  if (*b1<*b2) return -1;
+  else if (*b2>*b1) return 1;
+  else return 0;
 }

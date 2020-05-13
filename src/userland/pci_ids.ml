@@ -3922,7 +3922,7 @@ let ids = "#
 10f9  PC Direct
 10fa  Truevision
 	000c  TARGA 1000
-10fb  Thesys Gesellschaft für Mikroelektronik mbH
+10fb  Thesys Gesellschaft fï¿½r Mikroelektronik mbH
 	186f  TH 6255
 10fc  I-O Data Device, Inc.
 # What's in the cardbus end of a Sony ACR-A01 card, comes with newer Vaio CD-RW drives
@@ -8486,7 +8486,7 @@ let ids = "#
 5700  Netpower
 5851  Exacq Technologies
 6356  UltraStor
-6374  c't Magazin für Computertechnik
+6374  c't Magazin fï¿½r Computertechnik
 	6773  GPPCI
 6409  Logitec Corp.
 6666  Decision Computer International Co.
@@ -10183,7 +10183,7 @@ C 11  Signal processing controller
 
 let pos = ref 0
 
-let re_vendor = Str.regexp "^\\([^ ]+\\)[ ]+\\(.*\\)$"
+(* let re_vendor = Str.regexp "^\\([^ ]+\\)[ ]+\\(.*\\)$" *)
 
 let iter_ids f =
   pos := 0;
@@ -10207,13 +10207,14 @@ let string_of_vendor vendor =
     iter_ids
       (fun ln ->
 	 if ln.[0] <> '\t' && ln.[0] <> 'C' then
-	   if Str.string_match re_vendor ln 0 && vendor = int_of_string ("0x" ^ Str.matched_group 1 ln) then
+		false
+	   (* if Str.string_match re_vendor ln 0 && vendor = int_of_string ("0x" ^ Str.matched_group 1 ln) then
 	     (
 	       ans := Str.matched_group 2 ln;
 	       true
 	     )
 	   else
-	     false
+	     false *)
 	 else
 	   false
       );
@@ -10222,19 +10223,19 @@ let string_of_vendor vendor =
 let string_of_device vendor device =
   "Unknown device"
 
-let re_class= Str.regexp "^C \\([^ ]+\\)[ ]+\\(.*\\)$"
+(* let re_class= Str.regexp "^C \\([^ ]+\\)[ ]+\\(.*\\)$" *)
 
 let string_of_class cls =
   let ans = ref "Unknown class" in
     iter_ids
       (fun ln ->
 	 if ln.[0] <> '\t' then
-	   if Str.string_match re_class ln 0 && cls = int_of_string ("0x" ^ Str.matched_group 1 ln) then
+	   (* if Str.string_match re_class ln 0 && cls = int_of_string ("0x" ^ Str.matched_group 1 ln) then
 	     (
 	       ans := Str.matched_group 2 ln;
 	       true
 	     )
-	   else
+	   else *)
 	     false
 	 else
 	   false

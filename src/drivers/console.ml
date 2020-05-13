@@ -39,7 +39,7 @@ let len_y = 25
 let tab_length = 8
 
 (** String pointing at video memory. *)
-let video = Memory.to_string (Memory.of_addr 0xb8000)
+let video = Bytes.of_string @@ Memory.to_string (Memory.of_addr 0xb8000)
 
 (** Video board registers *)
 let port_reg = ref 0x3d4
@@ -66,7 +66,7 @@ type color =
 type t =
     {
       id : int; (** unique identifier *)
-      mutable buffer : (char * color * color) DynArray.t;
+      mutable buffer : (char * color * color) Array.t;
       mutable x_pos : int;
       mutable y_pos : int; (** position in from the begining of the buffer in lines *)
       mutable scroll_lines : int; (** offset from the begining of the buffer in lines *)
@@ -78,7 +78,7 @@ let null_char = ('\000', Light_gray, Black)
 exception Ctrl_D
 
 let get_empty_buffer () =
-  DynArray.init (len_x * len_y) (fun _ -> null_char)
+  Array.make (len_x * len_y) null_char
 
 let make =
   let id_count = ref (-1) in
@@ -94,7 +94,7 @@ let make =
       }
 
 let get_nb_lines csl =
-  (DynArray.length csl.buffer) / len_x
+  (Array.length csl.buffer) / len_x
 
 let current_console = ref (make ())
 
@@ -196,7 +196,7 @@ let display csl =
   let offs = csl.scroll_lines * len_x in
     for i = 0 to (len_x * len_y - 1)
     do
-      let c, fg, bg = DynArray.get csl.buffer (i + offs) in
+      let c, fg, bg = Array.get csl.buffer (i + offs) in
         video.[2 * i] <- c;
         video.[2 * i + 1] <- char_of_color fg bg
     done;
@@ -221,7 +221,7 @@ let clear csl =
 
 (* x and y positions are relative to the virtual screen *)
 let set_char csl x y c fg bg =
-  DynArray.set csl.buffer (y * len_x + x) (c, fg, bg);
+  Array.set csl.buffer (y * len_x + x) (c, fg, bg);
   if is_current_console csl then
     let real_y = y - csl.scroll_lines in
       if real_y >= 0 & real_y < len_y then
@@ -235,11 +235,11 @@ let newline csl =
   csl.y_pos <- csl.y_pos + 1;
   if csl.y_pos >= get_nb_lines csl then
     (
-      DynArray.append (DynArray.init len_x (fun _ -> null_char)) csl.buffer;
+      Array.append (Array.init len_x (fun _ -> null_char)) csl.buffer;
       csl.scroll_lines <- csl.scroll_lines + 1;
       if is_current_console csl & csl.scroll_lines = get_nb_lines csl - len_y then
 	(
-	  String.unsafe_blit video (len_x*2) video 0 ((len_y-1)*len_x*2);
+	  Bytes.unsafe_blit video (len_x*2) video 0 ((len_y-1)*len_x*2);
 	  for i = (len_y-1)*len_x to len_y*len_x-1
 	  do
 	    video.[2 * i] <- '\000';

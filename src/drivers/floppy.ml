@@ -447,8 +447,8 @@ let test () =
   motor_on primary_fdc 0;
   Printf.printf "ok\n%!";
   let buf = String.create 512 in
-    read primary_fdc 0 {c = 0; h = 0; s = 0} buf 1;
+    read primary_fdc 0 {c = 0; h = 0; s = 0} (Bytes.to_string buf) 1;
     for i = 0 to 251
     do
-      Printf.printf "%0x " (int_of_char buf.[i])
+      Printf.printf "%0x " (int_of_char (Bytes.to_string buf).[i])
     done
