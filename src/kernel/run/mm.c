@@ -1,11 +1,6 @@
-#ifdef TEST
-#include "test.h"
-#include <string.h>
-#else
 #include "kernel.h"
 #include "setup.h"
 #include "libc-dummy.h"
-#endif
 #include "mm.h"
 
 /*

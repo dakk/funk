@@ -3,31 +3,31 @@
 ARCH    = $(shell uname -m)
 VERSION = $(shell cat ../../VERSION)
 CAMLLIB = $(shell ~/.opam/4.09.1+32bit/bin/ocamlc -where)
-KERNEL  = funk-$(ARCH)-$(VERSION)
-LIBOCAML    = run/libocaml.a
-OCAMLKERNEL = mk/ocamlmkkernel.o
+KERNEL  = .build/funk-$(ARCH)-$(VERSION)
+LIBOCAML    = .build/libocaml.a
 LINK_SCRIPT	= link.ld
 
-OBJS_C = $(shell find run -name "*.c") $(shell find boot -name "*.c")
-OBJS_S = $(shell find boot -name "*.S")
-OBJS_O = $(OBJS_C:.c=.o) $(OBJS_S:.S=.o)
+OBJS_O = $(wildcard boot/i386/.build/*.o) $(wildcard run/.build/*.o)
 
-all: libocaml kernel
+all: .build kernel
 
-libocaml: mk $(OCAMLKERNEL)
+$(LIBOCAML): mk 
 	@echo "Generating libocaml.a"
 	@cp $(CAMLLIB)/libasmrun.a $(LIBOCAML)
-	@ar r $(LIBOCAML) $(OCAMLKERNEL)
+	@ar r $(LIBOCAML) mk/.build/ocamlkernel.o
 
 
 kernel: $(KERNEL)
 
-$(KERNEL): run boot $(LIBOCAML) $(OBJS_O) $(LINK_SCRIPT)
+$(KERNEL): run boot $(LIBOCAML) $(LINK_SCRIPT)
 	$(LD) $(LDFLAGS) -static -o $(KERNEL) -e multiboot_entry \
-              ./mk/mm/memory_stubs.o \
+              ./mk/mm/.build/memory_stubs.o \
               $(OBJS_O) $(LIBOCAML) $(shell $(CC) -print-libgcc-file-name) \
               -T $(LINK_SCRIPT)
 
+.build:
+	mkdir -p .build
+	
 mk:
 	@make -C mk
 
@@ -41,4 +41,4 @@ clean:
 	@make -C mk clean
 	@make -C boot clean
 	@make -C run clean
-	@ rm -rf $(KERNEL) $(OCAMLKERNEL) $(LIBOCAML)
+	@rm -rf .build
