@@ -18,7 +18,7 @@ let (<<|) o (module T: Ktask.Ktask) =
    (* Taskmap.add T.name (module T: Ktask.Ktask) o.ktasks } *)
 ;;
 
-let (<<) o e = Queue.add e o.events; o;;
+let (<<) o e = Queue.add e o.events; Video.kputs "inserted" 0 12; o;;
 
 let rec get_task s tl n = match n with
   0 -> Video.kputs "iterend" 0 7; None
@@ -40,8 +40,6 @@ let loop_step o =
     | None -> Video.kputs "no task" 0 8; o
     | Some (module M: Ktask.Ktask) -> (
       Video.kputs "found" 0 8;
-      let vt = M.create () in
-      Video.kputs "creted" 0 8;
-      let a = M.handle vt (evname, evpars) in o)
+      let a = M.handle (evname, evpars) in o)
   )
 ;;

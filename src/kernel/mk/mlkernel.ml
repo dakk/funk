@@ -40,15 +40,15 @@ open Orc;;
 (* ml kernel entry point *)
 let mlkernel_entry () = 
   Video.kputs "kernel" 0 0;
-  let orc = Orc.init () in
+  (* let orc = Orc.init () in
   let orc = orc <<| (module Video.Kvideo) in
 
-  let orc = orc << Video.eputs "ciao" in
+  let orc = orc << Video.eputs "ciao" in *)
   (* let orc = orc << Video.eputs "ciao" in *)
   (* let orc = orc << Video.eputs "ciao" in *)
   (* let orc = Orc.loop_step orc in *)
   (* let _ = Video.kputs "step1" in *)
-  let orc = Orc.loop_step orc in
+  (* let orc = Orc.loop_step orc in *)
   (* Video.kputs "step2"; *)
   ()
 ;;

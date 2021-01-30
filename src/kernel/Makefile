@@ -1,4 +1,4 @@
-.PHONY: all libcaml kernel mk run boot clean
+.PHONY: all kernel mk run boot clean
 
 ARCH    = $(shell uname -m)
 VERSION = $(shell cat ../../VERSION)
@@ -21,9 +21,9 @@ kernel: $(KERNEL)
 
 $(KERNEL): run boot $(LIBOCAML) $(LINK_SCRIPT)
 	$(LD) $(LDFLAGS) -static -o $(KERNEL) -e multiboot_entry \
-              ./mk/mm/.build/memory_stubs.o \
-              $(OBJS_O) $(LIBOCAML) $(shell $(CC) -print-libgcc-file-name) \
-              -T $(LINK_SCRIPT)
+        ./mk/mm/.build/memory_stubs.o \
+        $(OBJS_O) $(LIBOCAML) $(shell $(CC) -print-libgcc-file-name) \
+        -T $(LINK_SCRIPT)
 
 .build:
 	mkdir -p .build
